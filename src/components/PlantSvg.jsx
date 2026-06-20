@@ -15,7 +15,7 @@ const MOUTHS = [
 const PUPIL_R = [4, 5.5, 7, 7.5]
 const ANIM_CLS = ['p-droop', 'p-idle', 'p-sway', 'p-bloom']
 
-export default function PlantSvg({ score = 2, week = 1, onTap }) {
+export default function PlantSvg({ score = 2, week = 1, onTap, isBreathing = false }) {
   const wrapRef = useRef(null)
   const [body, side, top] = PC[score]
   const animClass = ANIM_CLS[score]
@@ -37,6 +37,7 @@ export default function PlantSvg({ score = 2, week = 1, onTap }) {
     <div
       ref={wrapRef}
       onClick={handleTap}
+      className={isBreathing ? 'plant-breathing' : ''}
       style={{ cursor: 'pointer', display: 'inline-block', lineHeight: 0 }}
     >
       <svg

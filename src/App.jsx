@@ -6,6 +6,9 @@ import WaterSleep from './components/WaterSleep'
 import Journal from './components/Journal'
 import SaveButton from './components/SaveButton'
 import ForestBackground from './components/ForestBackground'
+import Breathe from './components/Breathe'
+import MoodHistory from './components/MoodHistory'
+import ForestPreview from './components/ForestPreview'
 import { TR, FLAGS, CODES, LANGS } from './translations'
 import { sndHabit, sndWater, sndEmoji, sndSave, sndPlant, sndMilestone, startAmbient, stopAmbient } from './audio'
 
@@ -13,6 +16,7 @@ const LANG_NAMES = { en: 'English', es: 'Español', de: 'Deutsch', fr: 'Françai
 const SURPRISE_TYPES = ['ladybug', 'rainbow', 'sun']
 
 const SK = 'sprout_data'
+const HISTORY_SK = 'sprout_history'
 const TODAY = new Date().toISOString().split('T')[0]
 const CF_COLORS = ['#6ccc78', '#ffd166', '#ffb3c6', '#5bc8ee', '#f6b73c', '#a8d8b5', '#ff9ee8']
 const MS_DATA = {
@@ -23,22 +27,56 @@ const MS_DATA = {
   30: { emoji: '🏆', text: '30 Day Streak!', sub: 'One whole month. You did it.' },
 }
 
-function recalcStreak(days, today) {
+function recalcHabitStreak(days, today, habitId) {
   let n = 0
   const d = new Date(today)
   while (true) {
     const k = d.toISOString().split('T')[0]
-    if (days[k]?.habit) { n++; d.setDate(d.getDate() - 1) } else break
+    if (days[k]?.habits?.[habitId]) { n++; d.setDate(d.getDate() - 1) } else break
   }
   return n
+}
+
+function migrateState(parsed) {
+  // Migrate old single-habit format
+  if ('habitName' in parsed && !Array.isArray(parsed.habits)) {
+    const id = 'h1'
+    const newDays = {}
+    for (const [date, data] of Object.entries(parsed.days || {})) {
+      newDays[date] = {
+        habits: { [id]: data.habit || false },
+        water: data.water || 0,
+        sleep: data.sleep ?? null,
+        mood: data.mood ?? null,
+        note: data.note || '',
+      }
+    }
+    return {
+      habits: [{ id, name: parsed.habitName || '' }],
+      days: newDays,
+      lang: parsed.lang || 'en',
+      muted: parsed.muted || false,
+      ambientOn: parsed.ambientOn || false,
+    }
+  }
+  if (!Array.isArray(parsed.habits)) parsed.habits = []
+  return parsed
 }
 
 function getInitialState() {
   try {
     const r = localStorage.getItem(SK)
-    if (r) return JSON.parse(r)
+    if (r) return migrateState(JSON.parse(r))
   } catch (e) {}
-  return { habitName: '', streak: 0, days: {}, lang: 'en', muted: false, ambientOn: false }
+  return { habits: [], days: {}, lang: 'en', muted: false, ambientOn: false }
+}
+
+function saveHistory(date, mood, note) {
+  try {
+    const h = JSON.parse(localStorage.getItem(HISTORY_SK) || '{}')
+    h[date] = { mood, note: (note || '').slice(0, 100) }
+    localStorage.setItem(HISTORY_SK, JSON.stringify(h))
+  } catch (e) {}
 }
 
 function getGreeting(lang, name) {
@@ -96,8 +134,8 @@ function makeBF() {
 export default function App() {
   const [sproutState, setSproutState] = useState(() => {
     const s = getInitialState()
-    if (!s.days[TODAY]) s.days[TODAY] = { habit: false, water: 0, sleep: null, mood: null, note: '' }
-    s.streak = recalcStreak(s.days, TODAY)
+    if (!s.days[TODAY]) s.days[TODAY] = { habits: {}, water: 0, sleep: null, mood: null, note: '' }
+    if (!s.days[TODAY].habits) s.days[TODAY].habits = {}
     return s
   })
 
@@ -107,6 +145,7 @@ export default function App() {
   const [userName, setUserName] = useState(() => {
     try { return localStorage.getItem('sprout_name') || '' } catch (e) { return '' }
   })
+  const [isBreathing, setIsBreathing] = useState(false)
 
   const [toastMsg, setToastMsg] = useState('')
   const [toastShow, setToastShow] = useState(false)
@@ -119,15 +158,20 @@ export default function App() {
   const bfStageRef = useRef(null)
   const langWrapRef = useRef(null)
 
-  const td = sproutState.days[TODAY] || { habit: false, water: 0, sleep: null, mood: null, note: '' }
+  const td = sproutState.days[TODAY] || { habits: {}, water: 0, sleep: null, mood: null, note: '' }
+  const habits = sproutState.habits || []
+  const doneMap = td.habits || {}
+  const habitsDone = habits.length > 0 && habits.every(h => doneMap[h.id])
 
-  const persist = useCallback(newState => {
-    try { localStorage.setItem(SK, JSON.stringify(newState)) } catch (e) {}
-  }, [])
+  // Per-habit streaks (memoised by key list)
+  const streaks = {}
+  for (const h of habits) {
+    streaks[h.id] = recalcHabitStreak(sproutState.days, TODAY, h.id)
+  }
 
   const score = (() => {
     let n = 0
-    if (td.habit) n++
+    if (habitsDone) n++
     if ((td.water || 0) >= 8 || td.sleep != null) n++
     if (td.mood != null) n++
     return n
@@ -141,7 +185,6 @@ export default function App() {
   }
   const week = getWeek()
 
-  // Close lang dropdown on outside click
   useEffect(() => {
     const handler = e => {
       if (!langWrapRef.current?.contains(e.target)) setLangDropOpen(false)
@@ -150,7 +193,6 @@ export default function App() {
     return () => document.removeEventListener('click', handler)
   }, [])
 
-  // Butterfly timer
   useEffect(() => {
     if (!userName) return
     const spawnBF = () => {
@@ -174,11 +216,14 @@ export default function App() {
     return () => clearInterval(id)
   }, [userName, score])
 
+  const persist = useCallback(newState => {
+    try { localStorage.setItem(SK, JSON.stringify(newState)) } catch (e) {}
+  }, [])
+
   const updateToday = useCallback(updates => {
     setSproutState(prev => {
       const newDays = { ...prev.days, [TODAY]: { ...prev.days[TODAY], ...updates } }
-      const newStreak = recalcStreak(newDays, TODAY)
-      const next = { ...prev, days: newDays, streak: newStreak }
+      const next = { ...prev, days: newDays }
       persist(next)
       return next
     })
@@ -205,32 +250,57 @@ export default function App() {
     setTimeout(() => setConfettiItems([]), 3400)
   }, [])
 
-  const handleToggleHabit = useCallback(() => {
+  const handleToggleHabit = useCallback((habitId) => {
     setSproutState(prev => {
-      const newHabit = !prev.days[TODAY]?.habit
-      if (newHabit && !muted) sndHabit()
-      const newDays = { ...prev.days, [TODAY]: { ...prev.days[TODAY], habit: newHabit } }
-      const newStreak = recalcStreak(newDays, TODAY)
-      let next = { ...prev, days: newDays, streak: newStreak }
+      const prevDone = prev.days[TODAY]?.habits?.[habitId] || false
+      const newDone = !prevDone
+      if (newDone && !muted) sndHabit()
 
-      if (newHabit && MS_DATA[newStreak] && !next['ms' + newStreak]) {
-        next = { ...next, ['ms' + newStreak]: true }
-        const ms = MS_DATA[newStreak]
-        setTimeout(() => {
-          setMilestone(ms)
-          setMilestoneShow(true)
-          if (!muted) sndMilestone()
-          setTimeout(() => setMilestoneShow(false), 2800)
-        }, 500)
+      const newHabitsMap = { ...(prev.days[TODAY]?.habits || {}), [habitId]: newDone }
+      const newDays = { ...prev.days, [TODAY]: { ...prev.days[TODAY], habits: newHabitsMap } }
+      let next = { ...prev, days: newDays }
+
+      if (newDone) {
+        const newStreak = recalcHabitStreak(newDays, TODAY, habitId)
+        const msKey = 'msh_' + habitId + '_' + newStreak
+        if (MS_DATA[newStreak] && !next[msKey]) {
+          next = { ...next, [msKey]: true }
+          const ms = MS_DATA[newStreak]
+          setTimeout(() => {
+            setMilestone(ms)
+            setMilestoneShow(true)
+            if (!muted) sndMilestone()
+            setTimeout(() => setMilestoneShow(false), 2800)
+          }, 500)
+        }
       }
+
       persist(next)
       return next
     })
   }, [muted, persist])
 
-  const handleSaveName = useCallback(name => {
+  const handleAddHabit = useCallback(() => {
+    const id = 'h' + Date.now()
     setSproutState(prev => {
-      const next = { ...prev, habitName: name }
+      if ((prev.habits || []).length >= 3) return prev
+      const next = { ...prev, habits: [...(prev.habits || []), { id, name: '' }] }
+      persist(next)
+      return next
+    })
+  }, [persist])
+
+  const handleDeleteHabit = useCallback((habitId) => {
+    setSproutState(prev => {
+      const next = { ...prev, habits: (prev.habits || []).filter(h => h.id !== habitId) }
+      persist(next)
+      return next
+    })
+  }, [persist])
+
+  const handleRenameHabit = useCallback((habitId, name) => {
+    setSproutState(prev => {
+      const next = { ...prev, habits: (prev.habits || []).map(h => h.id === habitId ? { ...h, name } : h) }
       persist(next)
       return next
     })
@@ -261,22 +331,14 @@ export default function App() {
     })
   }, [muted, persist])
 
-  const handleSleepChange = useCallback(val => {
-    updateToday({ sleep: val })
-  }, [updateToday])
-
-  const handleMoodChange = useCallback(val => {
-    if (!muted) sndEmoji()
-    updateToday({ mood: val })
-  }, [muted, updateToday])
-
-  const handleNoteChange = useCallback(val => {
-    updateToday({ note: val })
-  }, [updateToday])
+  const handleSleepChange = useCallback(val => { updateToday({ sleep: val }) }, [updateToday])
+  const handleMoodChange = useCallback(val => { if (!muted) sndEmoji(); updateToday({ mood: val }) }, [muted, updateToday])
+  const handleNoteChange = useCallback(val => { updateToday({ note: val }) }, [updateToday])
 
   const handleSaveDay = useCallback(() => {
     if (!muted) sndSave()
     showToast(TR[lang].toast)
+    saveHistory(TODAY, td.mood, td.note)
     if (score === 3) {
       launchConfetti()
       setSproutState(prev => {
@@ -285,7 +347,6 @@ export default function App() {
         persist(next)
         return next
       })
-      // Trigger surprise animation outside the state updater to avoid StrictMode double-invoke
       if (sproutState.surpriseDate !== TODAY) {
         const type = SURPRISE_TYPES[Math.floor(Math.random() * 3)]
         setTimeout(() => {
@@ -294,42 +355,27 @@ export default function App() {
         }, 900)
       }
     }
-  }, [muted, lang, score, showToast, launchConfetti, persist, sproutState.surpriseDate])
+  }, [muted, lang, score, td.mood, td.note, showToast, launchConfetti, persist, sproutState.surpriseDate])
 
-  const handlePlantTap = useCallback(() => {
-    if (!muted) sndPlant()
-  }, [muted])
+  const handlePlantTap = useCallback(() => { if (!muted) sndPlant() }, [muted])
 
   const handleToggleMute = () => {
     const newVal = !muted
     setMuted(newVal)
-    setSproutState(prev => {
-      const next = { ...prev, muted: newVal }
-      persist(next)
-      return next
-    })
+    setSproutState(prev => { const next = { ...prev, muted: newVal }; persist(next); return next })
   }
 
   const handleToggleAmbient = () => {
     const newVal = !ambientOn
     setAmbientOn(newVal)
-    if (newVal) startAmbient()
-    else stopAmbient()
-    setSproutState(prev => {
-      const next = { ...prev, ambientOn: newVal }
-      persist(next)
-      return next
-    })
+    if (newVal) startAmbient(); else stopAmbient()
+    setSproutState(prev => { const next = { ...prev, ambientOn: newVal }; persist(next); return next })
   }
 
   const handleSetLang = l => {
     setLang(l)
     setLangDropOpen(false)
-    setSproutState(prev => {
-      const next = { ...prev, lang: l }
-      persist(next)
-      return next
-    })
+    setSproutState(prev => { const next = { ...prev, lang: l }; persist(next); return next })
   }
 
   const handleWelcomeComplete = name => {
@@ -337,9 +383,7 @@ export default function App() {
     setUserName(name)
   }
 
-  if (!userName) {
-    return <WelcomeScreen onComplete={handleWelcomeComplete} lang={lang} />
-  }
+  if (!userName) return <WelcomeScreen onComplete={handleWelcomeComplete} lang={lang} />
 
   const dateStr = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })
   const greeting = getGreeting(lang, userName)
@@ -364,21 +408,14 @@ export default function App() {
             <div className="hdr-date">{dateStr}</div>
           </div>
           <div className="lang-wrap" ref={langWrapRef}>
-            <button
-              className="lang-btn"
-              onClick={() => setLangDropOpen(o => !o)}
-            >
+            <button className="lang-btn" onClick={() => setLangDropOpen(o => !o)}>
               <span>{FLAGS[lang]}</span>
               <span>{CODES[lang]}</span>
               <span style={{ fontSize: 9, opacity: 0.5, marginLeft: 1 }}>▾</span>
             </button>
             <div className={`lang-drop ${langDropOpen ? 'open' : ''}`}>
               {LANGS.map(l => (
-                <button
-                  key={l}
-                  className={`lang-opt ${l === lang ? 'cur' : ''}`}
-                  onClick={() => handleSetLang(l)}
-                >
+                <button key={l} className={`lang-opt ${l === lang ? 'cur' : ''}`} onClick={() => handleSetLang(l)}>
                   {FLAGS[l]}&nbsp;&nbsp;{LANG_NAMES[l]}
                 </button>
               ))}
@@ -393,17 +430,25 @@ export default function App() {
           lang={lang}
           onTap={handlePlantTap}
           surprise={surprise}
+          isBreathing={isBreathing}
         />
 
-        {/* CARDS */}
+        {/* BREATHE */}
+        <Breathe onBreathing={setIsBreathing} />
+
+        {/* HABITS */}
         <HabitStreak
-          habitName={sproutState.habitName}
-          streak={sproutState.streak}
-          done={td.habit}
+          habits={habits}
+          streaks={streaks}
+          doneMap={doneMap}
           lang={lang}
           onToggle={handleToggleHabit}
-          onSaveName={handleSaveName}
+          onAdd={handleAddHabit}
+          onDelete={handleDeleteHabit}
+          onRename={handleRenameHabit}
         />
+
+        {/* WATER & SLEEP */}
         <WaterSleep
           water={td.water || 0}
           sleep={td.sleep}
@@ -412,6 +457,8 @@ export default function App() {
           onAdjWater={handleAdjWater}
           onSleepChange={handleSleepChange}
         />
+
+        {/* JOURNAL */}
         <Journal
           mood={td.mood}
           note={td.note}
@@ -419,7 +466,15 @@ export default function App() {
           onMoodChange={handleMoodChange}
           onNoteChange={handleNoteChange}
         />
+
+        {/* SAVE */}
         <SaveButton lang={lang} onSave={handleSaveDay} />
+
+        {/* HISTORY */}
+        <MoodHistory />
+
+        {/* FOREST PREVIEW */}
+        <ForestPreview />
       </div>
 
       {/* CONFETTI */}
@@ -445,7 +500,7 @@ export default function App() {
       {/* BUTTERFLIES */}
       <div className="butterfly-stage" ref={bfStageRef} />
 
-      {/* MILESTONE OVERLAY */}
+      {/* MILESTONE */}
       <div className={`milestone-ov ${milestoneShow ? 'show' : ''}`}>
         <div className="milestone-inner">
           <div className="milestone-emoji">{milestone?.emoji}</div>
