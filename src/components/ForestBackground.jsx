@@ -1,0 +1,159 @@
+import { useMemo } from 'react'
+
+function treeD(cx, baseY, w, h) {
+  const t = Math.max(4, w * 0.09)
+  return [
+    `M${cx - t},${baseY}`,
+    `L${cx - t},${baseY - h * 0.30}`,
+    `L${cx - w * 0.50},${baseY - h * 0.30}`,
+    `L${cx},${baseY - h * 0.57}`,
+    `L${cx + w * 0.50},${baseY - h * 0.30}`,
+    `L${cx + t},${baseY - h * 0.30}`,
+    `L${cx + t},${baseY - h * 0.52}`,
+    `L${cx + w * 0.40},${baseY - h * 0.52}`,
+    `L${cx},${baseY - h * 0.76}`,
+    `L${cx - w * 0.40},${baseY - h * 0.52}`,
+    `L${cx - t},${baseY - h * 0.52}`,
+    `L${cx - t},${baseY - h * 0.68}`,
+    `L${cx + w * 0.26},${baseY - h * 0.68}`,
+    `L${cx},${baseY - h}`,
+    `L${cx - w * 0.26},${baseY - h * 0.68}`,
+    `L${cx - t},${baseY - h * 0.68}`,
+    `Z`,
+  ].join(' ')
+}
+
+const BACK_TREES = [
+  [15, 320, 72, 275],
+  [72, 320, 58, 235],
+  [128, 320, 82, 300],
+  [195, 320, 68, 258],
+  [255, 320, 78, 288],
+  [312, 320, 62, 245],
+  [368, 320, 68, 272],
+  [420, 320, 55, 222],
+  [-8, 320, 62, 250],
+]
+
+const MID_TREES = [
+  [30, 220, 58, 190],
+  [88, 220, 52, 168],
+  [148, 220, 64, 198],
+  [212, 220, 56, 178],
+  [270, 220, 60, 192],
+  [328, 220, 54, 172],
+  [385, 220, 58, 182],
+  [-5, 220, 44, 150],
+]
+
+const RAYS = [
+  { rot: -42, x: 64, op: 0.032 },
+  { rot: -28, x: 60, op: 0.052 },
+  { rot: -15, x: 57, op: 0.072 },
+  { rot: -4, x: 55, op: 0.086 },
+  { rot: 7, x: 53, op: 0.068 },
+  { rot: 20, x: 51, op: 0.044 },
+  { rot: 33, x: 49, op: 0.028 },
+]
+
+export default function ForestBackground() {
+  const particles = useMemo(() => Array.from({ length: 48 }, (_, i) => ({
+    id: i,
+    x: 1 + Math.random() * 98,
+    y: 2 + Math.random() * 95,
+    size: 1.5 + Math.random() * 1.5,
+    dur: 7 + Math.random() * 16,
+    delay: -(Math.random() * 24),
+    drift: Math.round(-30 + Math.random() * 60),
+    opacity: 0.55 + Math.random() * 0.45,
+  })), [])
+
+  return (
+    <div className="forest-bg" aria-hidden="true">
+      <div className="forest-layer-back">
+        <svg
+          viewBox="0 0 430 320"
+          preserveAspectRatio="none"
+          xmlns="http://www.w3.org/2000/svg"
+          style={{ width: '100%', height: '100%' }}
+        >
+          {BACK_TREES.map(([cx, y, w, h], i) => (
+            <path key={i} d={treeD(cx, y, w, h)} fill="#040c06" />
+          ))}
+          <rect x="0" y="312" width="430" height="12" fill="#040c06" />
+        </svg>
+      </div>
+
+      <div className="forest-rays">
+        {RAYS.map((r, i) => (
+          <div
+            key={i}
+            className="forest-ray"
+            style={{
+              left: `${r.x}%`,
+              opacity: r.op,
+              transform: `rotate(${r.rot}deg)`,
+              animationDelay: `${i * 0.7}s`,
+            }}
+          />
+        ))}
+      </div>
+
+      <div className="forest-layer-mid">
+        <svg
+          viewBox="0 0 430 220"
+          preserveAspectRatio="none"
+          xmlns="http://www.w3.org/2000/svg"
+          style={{ width: '100%', height: '100%' }}
+        >
+          {MID_TREES.map(([cx, y, w, h], i) => (
+            <path key={i} d={treeD(cx, y, w, h)} fill="#060f08" />
+          ))}
+          <rect x="0" y="212" width="430" height="12" fill="#060f08" />
+        </svg>
+      </div>
+
+      <div className="forest-particles">
+        {particles.map(p => (
+          <div
+            key={p.id}
+            className="forest-particle"
+            style={{
+              left: `${p.x}%`,
+              top: `${p.y}%`,
+              width: `${p.size}px`,
+              height: `${p.size}px`,
+              opacity: p.opacity,
+              animationDuration: `${p.dur}s`,
+              animationDelay: `${p.delay}s`,
+              '--pdrift': `${p.drift}px`,
+            }}
+          />
+        ))}
+      </div>
+
+      <div className="forest-layer-front">
+        <svg
+          viewBox="0 0 430 80"
+          preserveAspectRatio="none"
+          xmlns="http://www.w3.org/2000/svg"
+          style={{ width: '100%', height: '100%' }}
+        >
+          <path
+            d="M0 80 Q4 42 12 60 Q18 22 28 52 Q33 12 42 46 Q48 28 54 56 Q60 16 68 48 Q74 34 80 58 Q86 18 94 50 Q100 38 106 60 Q112 22 122 50 Q128 36 134 58 Q140 16 150 48 Q156 30 162 56 Q168 20 178 48 Q184 36 190 58 Q196 12 208 46 Q214 28 220 54 Q226 18 236 48 Q242 34 248 58 Q254 14 264 48 Q270 30 276 55 Q282 18 292 50 Q298 36 304 60 Q310 20 320 50 Q326 38 332 58 Q338 14 348 48 Q354 30 360 55 Q366 20 376 50 Q382 36 388 60 Q394 16 404 48 Q410 32 416 56 Q422 18 428 50 L430 80 Z"
+            fill="#030a04"
+          />
+        </svg>
+      </div>
+
+      <div className="forest-mist">
+        <div className="mist-layer mist-layer-1" />
+        <div className="mist-layer mist-layer-2" />
+        <div className="mist-layer mist-layer-3" />
+        <div className="mist-layer mist-layer-4" />
+        <div className="mist-layer mist-layer-5" />
+        <div className="mist-layer mist-layer-6" />
+      </div>
+    </div>
+  )
+}

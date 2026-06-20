@@ -1,0 +1,100 @@
+let actx = null
+let ambientNodes = null
+
+function getCtx() {
+  if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)()
+  if (actx.state === 'suspended') actx.resume()
+  return actx
+}
+
+export function tone(freq, dur, vol = 0.07, type = 'sine', freqEnd = null) {
+  try {
+    const c = getCtx()
+    const o = c.createOscillator()
+    const g = c.createGain()
+    o.connect(g); g.connect(c.destination)
+    o.type = type; o.frequency.value = freq
+    if (freqEnd) o.frequency.exponentialRampToValueAtTime(freqEnd, c.currentTime + dur)
+    g.gain.setValueAtTime(vol, c.currentTime)
+    g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + dur)
+    o.start(); o.stop(c.currentTime + dur + 0.02)
+  } catch (e) {}
+}
+
+export const sndHabit = () => tone(440, 0.07, 0.08)
+export const sndWater = () => tone(880, 0.13, 0.07, 'sine', 620)
+export const sndEmoji = () => { tone(528, 0.14, 0.06); setTimeout(() => tone(660, 0.1, 0.04), 45) }
+export const sndSave = () => {
+  tone(523, 0.18, 0.08)
+  setTimeout(() => tone(659, 0.18, 0.07), 115)
+  setTimeout(() => tone(784, 0.28, 0.09), 230)
+}
+export const sndPlant = () => {
+  tone(523, 0.08, 0.09)
+  setTimeout(() => tone(659, 0.08, 0.08), 85)
+}
+export const sndMilestone = () => {
+  tone(784, 0.5, 0.09)
+  setTimeout(() => tone(988, 0.5, 0.08), 160)
+}
+
+export function startAmbient() {
+  if (ambientNodes) return
+  try {
+    const c = getCtx()
+    const master = c.createGain()
+    master.gain.setValueAtTime(0.001, c.currentTime)
+    master.gain.linearRampToValueAtTime(0.032, c.currentTime + 2.5)
+    master.connect(c.destination)
+
+    // Slow breathing LFO for a living, pulsing quality
+    const lfo = c.createOscillator()
+    const lfoGain = c.createGain()
+    lfo.frequency.value = 0.07
+    lfoGain.gain.value = 0.007
+    lfo.connect(lfoGain)
+    lfoGain.connect(master.gain)
+    lfo.start()
+
+    // Harmonic series drone — layered pure sines
+    const layers = [
+      { freq: 55,  vol: 0.50 },
+      { freq: 110, vol: 0.30 },
+      { freq: 165, vol: 0.18 },
+      { freq: 220, vol: 0.10 },
+      { freq: 275, vol: 0.05 },
+    ]
+
+    const oscs = layers.map(({ freq, vol }) => {
+      const osc = c.createOscillator()
+      const g = c.createGain()
+      osc.type = 'sine'
+      osc.frequency.value = freq + (Math.random() - 0.5) * 1.5
+      g.gain.value = vol
+      osc.connect(g)
+      g.connect(master)
+      osc.start()
+      return { osc, g }
+    })
+
+    ambientNodes = { master, lfo, lfoGain, oscs }
+  } catch (e) {}
+}
+
+export function stopAmbient() {
+  if (!ambientNodes) return
+  const nodes = ambientNodes
+  ambientNodes = null
+  try {
+    const { master, lfo, oscs } = nodes
+    if (actx) {
+      const t = actx.currentTime
+      master.gain.setValueAtTime(master.gain.value, t)
+      master.gain.linearRampToValueAtTime(0.001, t + 1.5)
+    }
+    setTimeout(() => {
+      oscs.forEach(({ osc }) => { try { osc.stop() } catch (e) {} })
+      try { lfo.stop() } catch (e) {}
+    }, 1700)
+  } catch (e) {}
+}
