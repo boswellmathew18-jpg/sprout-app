@@ -92,7 +92,7 @@ export default function PlantDisplay({ score, week, lang, onTap, surprise, isBre
       scale: [0.62, 1],
       translateY: [28, 0],
       delay: 180,
-      easing: spring({ stiffness: 120, damping: 14 }),
+      ease: spring({ stiffness: 120, damping: 14 }),
     })
   }, [])
 

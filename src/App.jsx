@@ -305,7 +305,7 @@ export default function App() {
               { translateX: vw + 90,  translateY: sy,         opacity: 0 },
             ],
             duration: totalDur,
-            easing: 'inOutSine',
+            ease: 'inOutSine',
             onComplete: () => bf.remove(),
           })
 
@@ -313,8 +313,8 @@ export default function App() {
           const wl = bf.querySelector('.wl')
           const wr = bf.querySelector('.wr')
           const flutterPeriod = (280 + Math.random() * 160)
-          if (wl) animate(wl, { scaleX: [1, 0.08, 1], duration: flutterPeriod, loop: true, easing: 'inOutSine' })
-          if (wr) animate(wr, { scaleX: [1, 0.08, 1], duration: flutterPeriod, loop: true, easing: 'inOutSine' })
+          if (wl) animate(wl, { scaleX: [1, 0.08, 1], duration: flutterPeriod, loop: Infinity, ease: 'inOutSine' })
+          if (wr) animate(wr, { scaleX: [1, 0.08, 1], duration: flutterPeriod, loop: Infinity, ease: 'inOutSine' })
         }, i * 4500)
       }
     }
@@ -527,13 +527,13 @@ export default function App() {
         translateY: [120, 0],
         opacity: [0, 1],
         scale: [0.85, 1],
-        easing: spring({ stiffness: 200, damping: 12 }),
+        ease: spring({ stiffness: 200, damping: 12 }),
       })
       const counter = { val: 0 }
       animate(counter, {
         val: count,
         duration: 600,
-        easing: 'easeOutQuart',
+        ease: 'outQuart',
         onUpdate: () => setDisplayCount(Math.round(counter.val)),
       })
     } else {
@@ -541,7 +541,7 @@ export default function App() {
         translateY: -16,
         opacity: 0,
         duration: 260,
-        easing: 'easeInQuart',
+        ease: 'inQuart',
       })
     }
   }, [streakFlameShow])
@@ -559,7 +559,7 @@ export default function App() {
         translateY: [20, 0],
         duration: 380,
         delay: stagger(75),
-        easing: 'easeOutQuart',
+        ease: 'outQuart',
       })
     }, delay)
     return () => clearTimeout(id)

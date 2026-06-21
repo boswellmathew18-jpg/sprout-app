@@ -84,9 +84,9 @@ export default function ForestBackground() {
         opacity: [base * 0.40, base * 1.70],
         duration: 4000 + i * 700,
         delay: i * 520,
-        direction: 'alternate',
-        loop: true,
-        easing: 'inOutSine',
+        alternate: true,
+        loop: Infinity,
+        ease: 'inOutSine',
       })
       anims.push(a)
     })
