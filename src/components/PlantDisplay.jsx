@@ -76,7 +76,7 @@ function SunSvg() {
   )
 }
 
-export default function PlantDisplay({ score, week, lang, onTap, surprise, isBreathing }) {
+export default function PlantDisplay({ score, week, lang, onTap, surprise, isBreathing, goldGlow }) {
   const t = TR[lang]
 
   return (
@@ -84,7 +84,7 @@ export default function PlantDisplay({ score, week, lang, onTap, surprise, isBre
       <div className="mossy-stone-wrap">
         <MossyStone />
       </div>
-      <PlantSvg score={score} week={week} onTap={onTap} isBreathing={isBreathing} />
+      <PlantSvg score={score} week={week} onTap={onTap} isBreathing={isBreathing} goldGlow={goldGlow} />
       <div className="plant-lbl">{t.pLbl[score]}</div>
       <div className="week-badge">Week {week}</div>
       <div className="surprise-container">

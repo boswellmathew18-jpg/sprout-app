@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from 'react'
 const TOTAL_CYCLES = 7
 const PHASE_MS = 4000
 
-export default function Breathe({ onBreathing }) {
+export default function Breathe({ onBreathing, onComplete, muted, fullScreen }) {
   const [running, setRunning] = useState(false)
   const [phase, setPhase] = useState('idle')
   const [stepsDone, setStepsDone] = useState(0)
@@ -25,6 +25,7 @@ export default function Breathe({ onBreathing }) {
         setRunning(false)
         setPhase('idle')
         onBreathing?.(false)
+        onComplete?.()
         return
       }
       setPhase(s % 2 === 0 ? 'inhale' : 'exhale')
@@ -53,14 +54,17 @@ export default function Breathe({ onBreathing }) {
   const phaseSub = phase === 'inhale' ? '4 seconds' : phase === 'exhale' ? '4 seconds' : ''
 
   return (
-    <div className="card breathe-card">
-      <div className="card-ttl">Breathe</div>
+    <div className={fullScreen ? 'breathe-fullscreen' : 'card breathe-card'}>
+      {!fullScreen && <div className="card-ttl">Breathe</div>}
+      {fullScreen && (
+        <p className="breathe-fs-title">Take a breath</p>
+      )}
       <div className="breathe-content">
-        <div className="breathe-stage">
+        <div className={`breathe-stage${fullScreen ? ' breathe-stage-fs' : ''}`}>
           <div className={`breathe-bubble ${phase}`}>
             <div className="breathe-ring r3" />
             <div className="breathe-ring r2" />
-            <div className="breathe-circle">
+            <div className={`breathe-circle${fullScreen ? ' breathe-circle-fs' : ''}`}>
               <span className="breathe-lbl">{phaseLabel}</span>
               {phaseSub && <span className="breathe-sub">{phaseSub}</span>}
             </div>
@@ -71,7 +75,7 @@ export default function Breathe({ onBreathing }) {
           <button className={`breathe-btn ${running ? 'running' : ''}`} onClick={toggle}>
             {running ? 'Stop' : 'Start'}
           </button>
-          {!running && <span className="breathe-hint">optional · 1 min</span>}
+          {!running && <span className="breathe-hint">7 cycles · ~1 min</span>}
         </div>
       </div>
     </div>

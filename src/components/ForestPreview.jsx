@@ -88,10 +88,9 @@ export default function ForestPreview() {
               <div className="fp-veil" />
             </div>
             <div className="fp-lock">
-              <div className="fp-lock-icon">🔒</div>
-              <div className="fp-lock-title">Premium 🌿</div>
+              <div className="fp-lock-title">🌲 Coming Soon</div>
               <div className="fp-lock-sub">
-                Watch your forest grow with every streak day. Unlock Premium to explore your full forest.
+                Your personal forest is growing in the background. Every streak day plants a new tree. Premium drops soon.
               </div>
             </div>
           </div>

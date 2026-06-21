@@ -9,8 +9,9 @@ import ForestBackground from './components/ForestBackground'
 import Breathe from './components/Breathe'
 import MoodHistory from './components/MoodHistory'
 import ForestPreview from './components/ForestPreview'
+import StreakCalendar from './components/StreakCalendar'
 import { TR, FLAGS, CODES, LANGS } from './translations'
-import { sndHabit, sndWater, sndEmoji, sndSave, sndPlant, sndMilestone, startAmbient, stopAmbient } from './audio'
+import { sndHabit, sndWater, sndEmoji, sndSave, sndPlant, sndMilestone, sndStreakSave, sndBreathingComplete, startAmbient, stopAmbient } from './audio'
 
 const LANG_NAMES = { en: 'English', es: 'Español', de: 'Deutsch', fr: 'Français' }
 const SURPRISE_TYPES = ['ladybug', 'rainbow', 'sun']
@@ -20,11 +21,11 @@ const HISTORY_SK = 'sprout_history'
 const TODAY = new Date().toISOString().split('T')[0]
 const CF_COLORS = ['#6ccc78', '#ffd166', '#ffb3c6', '#5bc8ee', '#f6b73c', '#a8d8b5', '#ff9ee8']
 const MS_DATA = {
-  3:  { emoji: '🌱', text: '3 Day Streak!',  sub: "You're building something real." },
+  3:  { emoji: '🔥', text: '3 Day Streak!',  sub: "You're building something real." },
   7:  { emoji: '🔥', text: '7 Day Streak!',  sub: 'One whole week — incredible!' },
-  14: { emoji: '⚡', text: '2 Week Streak!', sub: 'Consistency is your superpower.' },
-  21: { emoji: '🌟', text: '21 Day Streak!', sub: 'This is becoming a habit for life.' },
-  30: { emoji: '🏆', text: '30 Day Streak!', sub: 'One whole month. You did it.' },
+  14: { emoji: '🔥', text: '2 Week Streak!', sub: 'Consistency is your superpower.' },
+  21: { emoji: '🔥', text: '21 Day Streak!', sub: 'This is becoming a habit for life.' },
+  30: { emoji: '🔥', text: '30 Day Streak!', sub: 'One whole month. You did it.' },
 }
 
 function recalcHabitStreak(days, today, habitId) {
@@ -37,8 +38,17 @@ function recalcHabitStreak(days, today, habitId) {
   return n
 }
 
+function recalcSaveStreak(days, today) {
+  let n = 0
+  const d = new Date(today)
+  while (true) {
+    const k = d.toISOString().split('T')[0]
+    if (days[k]?.saved) { n++; d.setDate(d.getDate() - 1) } else break
+  }
+  return n
+}
+
 function migrateState(parsed) {
-  // Migrate old single-habit format
   if ('habitName' in parsed && !Array.isArray(parsed.habits)) {
     const id = 'h1'
     const newDays = {}
@@ -131,6 +141,36 @@ function makeBF() {
   return outer
 }
 
+// Tab bar SVG icons
+function IconHome({ active }) {
+  const c = active ? '#7de89a' : 'rgba(180,220,195,0.42)'
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 22V12M12 12C12 7.5 9 5 5 5C2 5 2 9 5 11C8 13 12 12 12 12ZM12 12C12 7.5 15 5 19 5C22 5 22 9 19 11C16 13 12 12 12 12Z" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M7 22h10" stroke={c} strokeWidth="2" strokeLinecap="round"/>
+    </svg>
+  )
+}
+function IconBreathe({ active }) {
+  const c = active ? '#7de89a' : 'rgba(180,220,195,0.42)'
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M17.7 7.7a2.5 2.5 0 1 1 1.8 4.3H2" stroke={c} strokeWidth="2" strokeLinecap="round"/>
+      <path d="M9.6 4.4a2 2 0 1 1 1.4 3.4H2" stroke={c} strokeWidth="2" strokeLinecap="round"/>
+      <path d="M12.6 19.4a2 2 0 1 0 1.4-3.4H2" stroke={c} strokeWidth="2" strokeLinecap="round"/>
+    </svg>
+  )
+}
+function IconGrowth({ active }) {
+  const c = active ? '#7de89a' : 'rgba(180,220,195,0.42)'
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M3 3v18h18" stroke={c} strokeWidth="2" strokeLinecap="round"/>
+      <path d="M7 16l4-4 4 4 5-7" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  )
+}
+
 export default function App() {
   const [sproutState, setSproutState] = useState(() => {
     const s = getInitialState()
@@ -146,6 +186,7 @@ export default function App() {
     try { return localStorage.getItem('sprout_name') || '' } catch (e) { return '' }
   })
   const [isBreathing, setIsBreathing] = useState(false)
+  const [activeTab, setActiveTab] = useState('home')
 
   const [toastMsg, setToastMsg] = useState('')
   const [toastShow, setToastShow] = useState(false)
@@ -155,6 +196,17 @@ export default function App() {
   const [surprise, setSurprise] = useState(null)
   const [langDropOpen, setLangDropOpen] = useState(false)
 
+  // Streak flame popup
+  const [streakFlame, setStreakFlame] = useState(null)
+  const [streakFlameShow, setStreakFlameShow] = useState(false)
+  const flameTimerRef = useRef(null)
+
+  // Breathing completion celebration
+  const [breatheShow, setBreatheShow] = useState(false)
+  const [breatheParticles, setBreatheParticles] = useState([])
+  const [plantGoldGlow, setPlantGoldGlow] = useState(false)
+  const breatheTimerRef = useRef(null)
+
   const bfStageRef = useRef(null)
   const langWrapRef = useRef(null)
 
@@ -163,7 +215,6 @@ export default function App() {
   const doneMap = td.habits || {}
   const habitsDone = habits.length > 0 && habits.every(h => doneMap[h.id])
 
-  // Per-habit streaks (memoised by key list)
   const streaks = {}
   for (const h of habits) {
     streaks[h.id] = recalcHabitStreak(sproutState.days, TODAY, h.id)
@@ -336,26 +387,81 @@ export default function App() {
   const handleNoteChange = useCallback(val => { updateToday({ note: val }) }, [updateToday])
 
   const handleSaveDay = useCallback(() => {
-    if (!muted) sndSave()
+    const isMuted = muted
+    if (!isMuted) sndSave()
     showToast(TR[lang].toast)
     saveHistory(TODAY, td.mood, td.note)
-    if (score === 3) {
-      launchConfetti()
-      setSproutState(prev => {
-        if (prev.surpriseDate === TODAY) return prev
-        const next = { ...prev, surpriseDate: TODAY }
-        persist(next)
-        return next
-      })
-      if (sproutState.surpriseDate !== TODAY) {
-        const type = SURPRISE_TYPES[Math.floor(Math.random() * 3)]
-        setTimeout(() => {
-          setSurprise(type)
-          setTimeout(() => setSurprise(null), 3700)
-        }, 900)
-      }
+
+    // Compute save streak before updating state
+    const alreadySaved = !!sproutState.days[TODAY]?.saved
+    const newDaysPreview = {
+      ...sproutState.days,
+      [TODAY]: { ...(sproutState.days[TODAY] || {}), saved: true },
     }
-  }, [muted, lang, score, td.mood, td.note, showToast, launchConfetti, persist, sproutState.surpriseDate])
+    const saveStreak = recalcSaveStreak(newDaysPreview, TODAY)
+    const isSurprise = score === 3 && sproutState.surpriseDate !== TODAY
+
+    setSproutState(prev => {
+      const todayData = { ...(prev.days[TODAY] || {}), saved: true }
+      const newDays = { ...prev.days, [TODAY]: todayData }
+      let next = { ...prev, days: newDays }
+      if (isSurprise) next = { ...next, surpriseDate: TODAY }
+      persist(next)
+      return next
+    })
+
+    // Streak flame popup — only first save of the day
+    if (saveStreak >= 1 && !alreadySaved) {
+      const msData = MS_DATA[saveStreak] || null
+      setTimeout(() => {
+        if (!isMuted) sndStreakSave()
+        setStreakFlame({ count: saveStreak, milestone: msData })
+        setStreakFlameShow(true)
+        launchConfetti()
+        clearTimeout(flameTimerRef.current)
+        flameTimerRef.current = setTimeout(() => setStreakFlameShow(false), 2500)
+      }, 400)
+    }
+
+    if (isSurprise) {
+      const type = SURPRISE_TYPES[Math.floor(Math.random() * 3)]
+      setTimeout(() => {
+        setSurprise(type)
+        setTimeout(() => setSurprise(null), 3700)
+      }, 900)
+    }
+  }, [muted, lang, score, td.mood, td.note, sproutState, showToast, launchConfetti, persist])
+
+  const handleBreatheComplete = useCallback(() => {
+    const isMuted = muted
+    if (!isMuted) sndBreathingComplete()
+    const particles = Array.from({ length: 28 }, (_, i) => ({
+      id: i,
+      left: 5 + Math.random() * 90,
+      dur: 1.6 + Math.random() * 2.2,
+      del: Math.random() * 1.4,
+      size: 4 + Math.random() * 7,
+    }))
+    setBreatheParticles(particles)
+    setPlantGoldGlow(true)
+    setBreatheShow(true)
+    clearTimeout(breatheTimerRef.current)
+    breatheTimerRef.current = setTimeout(() => {
+      setBreatheShow(false)
+      setPlantGoldGlow(false)
+    }, 3000)
+  }, [muted])
+
+  const dismissBreathe = useCallback(() => {
+    clearTimeout(breatheTimerRef.current)
+    setBreatheShow(false)
+    setPlantGoldGlow(false)
+  }, [])
+
+  const dismissFlame = useCallback(() => {
+    clearTimeout(flameTimerRef.current)
+    setStreakFlameShow(false)
+  }, [])
 
   const handlePlantTap = useCallback(() => { if (!muted) sndPlant() }, [muted])
 
@@ -392,92 +498,150 @@ export default function App() {
   return (
     <>
       <ForestBackground />
-      <div className="app">
-        {/* HEADER */}
-        <div className="hdr">
-          <div className="hdr-icons">
-            <button className="mute-btn" onClick={handleToggleMute} aria-label="Toggle tap sounds">
+      <div className={`breathe-night-veil${activeTab === 'breathe' ? ' active' : ''}`} />
+
+      {/* ── HOME TAB ── */}
+      <div className={`tab-pane${activeTab === 'home' ? ' tab-pane-active' : ''}`}>
+        <div className="app">
+          {/* HEADER */}
+          <div className="hdr">
+            <div className="hdr-icons">
+              <button className="mute-btn" onClick={handleToggleMute} aria-label="Toggle tap sounds">
+                {muted ? '🔇' : '🔔'}
+              </button>
+              <button className="mute-btn" onClick={handleToggleAmbient} aria-label="Toggle ambient sound">
+                {ambientOn ? '🎵' : '🍃'}
+              </button>
+            </div>
+            <div className="hdr-left">
+              <h1>{greeting} {timeEmoji}</h1>
+              <div className="hdr-date">{dateStr}</div>
+            </div>
+            <div className="lang-wrap" ref={langWrapRef}>
+              <button className="lang-btn" onClick={() => setLangDropOpen(o => !o)}>
+                <span>{FLAGS[lang]}</span>
+                <span>{CODES[lang]}</span>
+                <span style={{ fontSize: 9, opacity: 0.5, marginLeft: 1 }}>▾</span>
+              </button>
+              <div className={`lang-drop ${langDropOpen ? 'open' : ''}`}>
+                {LANGS.map(l => (
+                  <button key={l} className={`lang-opt ${l === lang ? 'cur' : ''}`} onClick={() => handleSetLang(l)}>
+                    {FLAGS[l]}&nbsp;&nbsp;{LANG_NAMES[l]}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* PLANT */}
+          <PlantDisplay
+            score={score}
+            week={week}
+            lang={lang}
+            onTap={handlePlantTap}
+            surprise={surprise}
+            isBreathing={isBreathing}
+            goldGlow={plantGoldGlow}
+          />
+
+          {/* HABITS */}
+          <HabitStreak
+            habits={habits}
+            streaks={streaks}
+            doneMap={doneMap}
+            lang={lang}
+            onToggle={handleToggleHabit}
+            onAdd={handleAddHabit}
+            onDelete={handleDeleteHabit}
+            onRename={handleRenameHabit}
+          />
+
+          {/* WATER & SLEEP */}
+          <WaterSleep
+            water={td.water || 0}
+            sleep={td.sleep}
+            lang={lang}
+            onTapDot={handleTapDot}
+            onAdjWater={handleAdjWater}
+            onSleepChange={handleSleepChange}
+          />
+
+          {/* JOURNAL */}
+          <Journal
+            mood={td.mood}
+            note={td.note}
+            lang={lang}
+            onMoodChange={handleMoodChange}
+            onNoteChange={handleNoteChange}
+          />
+
+          {/* SAVE */}
+          <SaveButton lang={lang} onSave={handleSaveDay} />
+        </div>
+      </div>
+
+      {/* ── BREATHE TAB ── always mounted so timer survives tab switches */}
+      <div className={`tab-pane breathe-tab-pane${activeTab === 'breathe' ? ' tab-pane-active' : ''}`}>
+        <div className="breathe-tab-full">
+          <div className="breathe-tab-controls">
+            <button className="mute-btn" onClick={handleToggleMute} aria-label="Toggle sounds">
               {muted ? '🔇' : '🔔'}
             </button>
-            <button className="mute-btn" onClick={handleToggleAmbient} aria-label="Toggle ambient sound">
+            <button className="mute-btn" onClick={handleToggleAmbient} aria-label="Toggle ambient">
               {ambientOn ? '🎵' : '🍃'}
             </button>
           </div>
-          <div className="hdr-left">
-            <h1>{greeting} {timeEmoji}</h1>
-            <div className="hdr-date">{dateStr}</div>
-          </div>
-          <div className="lang-wrap" ref={langWrapRef}>
-            <button className="lang-btn" onClick={() => setLangDropOpen(o => !o)}>
-              <span>{FLAGS[lang]}</span>
-              <span>{CODES[lang]}</span>
-              <span style={{ fontSize: 9, opacity: 0.5, marginLeft: 1 }}>▾</span>
-            </button>
-            <div className={`lang-drop ${langDropOpen ? 'open' : ''}`}>
-              {LANGS.map(l => (
-                <button key={l} className={`lang-opt ${l === lang ? 'cur' : ''}`} onClick={() => handleSetLang(l)}>
-                  {FLAGS[l]}&nbsp;&nbsp;{LANG_NAMES[l]}
-                </button>
-              ))}
-            </div>
-          </div>
+          <Breathe
+            fullScreen
+            onBreathing={setIsBreathing}
+            onComplete={handleBreatheComplete}
+            muted={muted}
+          />
         </div>
-
-        {/* PLANT */}
-        <PlantDisplay
-          score={score}
-          week={week}
-          lang={lang}
-          onTap={handlePlantTap}
-          surprise={surprise}
-          isBreathing={isBreathing}
-        />
-
-        {/* BREATHE */}
-        <Breathe onBreathing={setIsBreathing} />
-
-        {/* HABITS */}
-        <HabitStreak
-          habits={habits}
-          streaks={streaks}
-          doneMap={doneMap}
-          lang={lang}
-          onToggle={handleToggleHabit}
-          onAdd={handleAddHabit}
-          onDelete={handleDeleteHabit}
-          onRename={handleRenameHabit}
-        />
-
-        {/* WATER & SLEEP */}
-        <WaterSleep
-          water={td.water || 0}
-          sleep={td.sleep}
-          lang={lang}
-          onTapDot={handleTapDot}
-          onAdjWater={handleAdjWater}
-          onSleepChange={handleSleepChange}
-        />
-
-        {/* JOURNAL */}
-        <Journal
-          mood={td.mood}
-          note={td.note}
-          lang={lang}
-          onMoodChange={handleMoodChange}
-          onNoteChange={handleNoteChange}
-        />
-
-        {/* SAVE */}
-        <SaveButton lang={lang} onSave={handleSaveDay} />
-
-        {/* HISTORY */}
-        <MoodHistory />
-
-        {/* FOREST PREVIEW */}
-        <ForestPreview />
       </div>
 
-      {/* CONFETTI */}
+      {/* ── GROWTH TAB ── */}
+      <div className={`tab-pane${activeTab === 'growth' ? ' tab-pane-active' : ''}`}>
+        <div className="app">
+          <div className="growth-hdr">
+            <h2 className="growth-title">Your Growth 🌿</h2>
+            <p className="growth-sub">{dateStr}</p>
+          </div>
+          <StreakCalendar days={sproutState.days} />
+          <MoodHistory />
+          <ForestPreview />
+        </div>
+      </div>
+
+      {/* ── BOTTOM TAB BAR ── */}
+      <nav className="tab-bar">
+        <button
+          className={`tab-btn${activeTab === 'home' ? ' active' : ''}`}
+          onClick={() => setActiveTab('home')}
+          aria-label="Home"
+        >
+          <span className="tab-icon"><IconHome active={activeTab === 'home'} /></span>
+          <span className="tab-lbl">Home</span>
+        </button>
+        <button
+          className={`tab-btn${activeTab === 'breathe' ? ' active' : ''}`}
+          onClick={() => setActiveTab('breathe')}
+          aria-label="Breathe"
+        >
+          <span className="tab-icon"><IconBreathe active={activeTab === 'breathe'} /></span>
+          <span className="tab-lbl">Breathe</span>
+        </button>
+        <button
+          className={`tab-btn${activeTab === 'growth' ? ' active' : ''}`}
+          onClick={() => setActiveTab('growth')}
+          aria-label="Growth"
+        >
+          <span className="tab-icon"><IconGrowth active={activeTab === 'growth'} /></span>
+          <span className="tab-lbl">Growth</span>
+        </button>
+      </nav>
+
+      {/* ── CONFETTI ── */}
       <div className="confetti-wrap">
         {confettiItems.map(item => (
           <div
@@ -497,10 +661,10 @@ export default function App() {
         ))}
       </div>
 
-      {/* BUTTERFLIES */}
+      {/* ── BUTTERFLIES ── */}
       <div className="butterfly-stage" ref={bfStageRef} />
 
-      {/* MILESTONE */}
+      {/* ── HABIT MILESTONE OVERLAY ── */}
       <div className={`milestone-ov ${milestoneShow ? 'show' : ''}`}>
         <div className="milestone-inner">
           <div className="milestone-emoji">{milestone?.emoji}</div>
@@ -509,7 +673,45 @@ export default function App() {
         </div>
       </div>
 
-      {/* TOAST */}
+      {/* ── STREAK FLAME POPUP ── */}
+      {streakFlameShow && (
+        <div className="streak-flame-ov" onClick={dismissFlame}>
+          <div className={`sf-inner${streakFlame?.milestone ? ' sf-milestone' : ''}`}>
+            <div className="sf-flame">🔥</div>
+            <div className="sf-count">{streakFlame?.count} Day Streak!</div>
+            {streakFlame?.milestone && (
+              <div className="sf-milestone-sub">{streakFlame.milestone.sub}</div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ── BREATHING COMPLETION OVERLAY ── */}
+      {breatheShow && (
+        <div className="breathe-complete-ov" onClick={dismissBreathe}>
+          <div className="bc-particles">
+            {breatheParticles.map(p => (
+              <div
+                key={p.id}
+                className="bc-particle"
+                style={{
+                  left: `${p.left}%`,
+                  width: `${p.size}px`,
+                  height: `${p.size}px`,
+                  animationDuration: `${p.dur}s`,
+                  animationDelay: `${p.del}s`,
+                }}
+              />
+            ))}
+          </div>
+          <div className="bc-msg">
+            <div className="bc-text">Well done 🌿</div>
+            <div className="bc-sub">You took a moment for yourself</div>
+          </div>
+        </div>
+      )}
+
+      {/* ── TOAST ── */}
       <div className={`toast ${toastShow ? 'show' : ''}`}>{toastMsg}</div>
     </>
   )
