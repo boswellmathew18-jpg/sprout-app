@@ -6,6 +6,7 @@ import WaterSleep from './components/WaterSleep'
 import Journal from './components/Journal'
 import SaveButton from './components/SaveButton'
 import ForestBackground from './components/ForestBackground'
+import StarfieldBackground from './components/StarfieldBackground'
 import Breathe from './components/Breathe'
 import MoodHistory from './components/MoodHistory'
 import ForestPreview from './components/ForestPreview'
@@ -100,6 +101,34 @@ function getGreeting(lang, name) {
 function getTimeEmoji() {
   const h = new Date().getHours()
   return h >= 5 && h < 12 ? '🌿' : h >= 12 && h < 18 ? '☀️' : '🌙'
+}
+
+function SplitText({ text, emoji }) {
+  const chars = [...text]
+  return (
+    <>
+      {chars.map((ch, i) => (
+        <span
+          key={i}
+          className="split-char"
+          style={{
+            animationDelay: `${i * 40}ms`,
+            display: ch === ' ' ? 'inline' : 'inline-block',
+          }}
+        >
+          {ch === ' ' ? ' ' : ch}
+        </span>
+      ))}
+      {emoji && (
+        <span
+          className="split-char"
+          style={{ animationDelay: `${chars.length * 40 + 20}ms`, display: 'inline-block' }}
+        >
+          {' '}{emoji}
+        </span>
+      )}
+    </>
+  )
 }
 
 function makeBF() {
@@ -511,7 +540,7 @@ export default function App() {
               </button>
             </div>
             <div className="hdr-left">
-              <h1>{greeting} {timeEmoji}</h1>
+              <h1><SplitText text={greeting} emoji={timeEmoji} /></h1>
               <div className="hdr-date">{dateStr}</div>
             </div>
             <div className="lang-wrap" ref={langWrapRef}>
@@ -579,6 +608,7 @@ export default function App() {
 
       {/* ── BREATHE TAB ── always mounted so timer survives tab switches */}
       <div className={`tab-pane breathe-tab-pane${activeTab === 'breathe' ? ' tab-pane-active' : ''}`}>
+        <StarfieldBackground />
         <div className="breathe-tab-full">
           <div className="breathe-tab-controls">
             <button className="mute-btn" onClick={handleToggleMute} aria-label="Toggle sounds">

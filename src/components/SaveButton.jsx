@@ -26,7 +26,7 @@ export default function SaveButton({ lang, onSave }) {
       className={`save-btn ${ok ? 'ok' : ''}`}
       onClick={handleClick}
     >
-      <span>{ok ? t.savedBtn : t.saveBtn}</span>
+      <span className="save-txt">{ok ? t.savedBtn : t.saveBtn}</span>
       <div className="ck-ring">
         <svg className="ck-svg" viewBox="0 0 16 16" fill="none">
           <path

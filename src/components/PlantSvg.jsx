@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 
 const PC = [
   ['#b2c4aa', '#98b088', '#a6be9a'],
@@ -14,9 +14,13 @@ const MOUTHS = [
 ]
 const PUPIL_R = [4, 5.5, 7, 7.5]
 const ANIM_CLS = ['p-droop', 'p-idle', 'p-sway', 'p-bloom']
+const PARTICLE_COLORS = ['#6cc274', '#50ba60', '#a8d8b5', '#7de89a', '#56a862', '#90e89a']
+
+let nextPId = 0
 
 export default function PlantSvg({ score = 2, week = 1, onTap, isBreathing = false, goldGlow = false }) {
   const wrapRef = useRef(null)
+  const [particles, setParticles] = useState([])
   const [body, side, top] = PC[score]
   const animClass = ANIM_CLS[score]
   const pr = PUPIL_R[score]
@@ -30,6 +34,24 @@ export default function PlantSvg({ score = 2, week = 1, onTap, isBreathing = fal
       el.classList.add('plant-jumping')
       el.addEventListener('animationend', () => el.classList.remove('plant-jumping'), { once: true })
     }
+
+    const count = 7
+    const burst = Array.from({ length: count }, (_, i) => {
+      const angle = (i / count) * Math.PI * 2 + (Math.random() - 0.5) * 0.7
+      const dist = 36 + Math.random() * 30
+      const id = nextPId++
+      return {
+        id,
+        dx: Math.cos(angle) * dist,
+        dy: Math.sin(angle) * dist,
+        size: 5 + Math.random() * 5,
+        color: PARTICLE_COLORS[Math.floor(Math.random() * PARTICLE_COLORS.length)],
+      }
+    })
+    setParticles(p => [...p, ...burst])
+    const ids = new Set(burst.map(b => b.id))
+    setTimeout(() => setParticles(p => p.filter(pt => !ids.has(pt.id))), 700)
+
     onTap?.()
   }
 
@@ -38,7 +60,7 @@ export default function PlantSvg({ score = 2, week = 1, onTap, isBreathing = fal
       ref={wrapRef}
       onClick={handleTap}
       className={goldGlow ? 'plant-gold-glow' : isBreathing ? 'plant-breathing' : ''}
-      style={{ cursor: 'pointer', display: 'inline-block', lineHeight: 0 }}
+      style={{ cursor: 'pointer', display: 'inline-block', lineHeight: 0, position: 'relative' }}
     >
       <svg
         className="plant-svg"
@@ -132,6 +154,21 @@ export default function PlantSvg({ score = 2, week = 1, onTap, isBreathing = fal
           Sprout
         </text>
       </svg>
+
+      {/* TAP PARTICLES */}
+      {particles.map(p => (
+        <span
+          key={p.id}
+          className="plant-particle"
+          style={{
+            width: `${p.size}px`,
+            height: `${p.size}px`,
+            background: p.color,
+            '--dx': `${p.dx}px`,
+            '--dy': `${p.dy}px`,
+          }}
+        />
+      ))}
     </div>
   )
 }
