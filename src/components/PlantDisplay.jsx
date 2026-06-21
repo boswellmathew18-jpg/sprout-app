@@ -1,3 +1,5 @@
+import { useEffect, useRef } from 'react'
+import { animate, spring } from 'animejs'
 import PlantSvg from './PlantSvg'
 import { TR } from '../translations'
 
@@ -78,9 +80,24 @@ function SunSvg() {
 
 export default function PlantDisplay({ score, week, lang, onTap, surprise, isBreathing, goldGlow }) {
   const t = TR[lang]
+  const plantRef = useRef(null)
+
+  useEffect(() => {
+    const el = plantRef.current
+    if (!el) return
+    el.style.opacity = '0'
+    el.style.transform = 'scale(0.62) translateY(28px)'
+    animate(el, {
+      opacity: [0, 1],
+      scale: [0.62, 1],
+      translateY: [28, 0],
+      delay: 180,
+      easing: spring({ stiffness: 120, damping: 14 }),
+    })
+  }, [])
 
   return (
-    <div className="plant-area">
+    <div className="plant-area" ref={plantRef}>
       <div className="mossy-stone-wrap">
         <MossyStone />
       </div>

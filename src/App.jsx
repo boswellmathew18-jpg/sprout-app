@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
+import { animate, stagger, spring, set, remove } from 'animejs'
 import WelcomeScreen from './components/WelcomeScreen'
 import PlantDisplay from './components/PlantDisplay'
 import HabitStreak from './components/HabitStreak'
@@ -133,16 +134,16 @@ function SplitText({ text, emoji }) {
 
 function makeBF() {
   const outer = document.createElement('div')
-  outer.className = 'butterfly'
-  const wave = document.createElement('div')
-  wave.className = 'bf-wave'
+  outer.className = 'bf-body'
+  const inner = document.createElement('div')
+  inner.className = 'bf-inner'
   const palettes = [
     { w: '#f08528', h: '#f5b84a', dk: '#281005', dot: '#fffbe6' },
     { w: '#c0a4e8', h: '#ddd0f8', dk: '#2e1a50', dot: '#fef0ff' },
     { w: '#f0c060', h: '#f8e090', dk: '#2a1a00', dot: '#ffffff' },
   ]
   const p = palettes[Math.floor(Math.random() * palettes.length)]
-  wave.innerHTML = `<svg width="90" height="78" viewBox="-55 -48 110 85" style="overflow:visible">
+  inner.innerHTML = `<svg width="90" height="78" viewBox="-55 -48 110 85" style="overflow:visible">
     <g class="wl">
       <path d="M 0,2 C -5,-4 -30,-42 -44,-30 C -50,-18 -30,-1 0,13" fill="${p.w}"/>
       <path d="M 0,6 C -6,0 -24,-30 -36,-22 C -40,-14 -26,0 0,10" fill="${p.h}" opacity="0.55"/>
@@ -166,7 +167,7 @@ function makeBF() {
     <circle cx="-9" cy="-28" r="2.1" fill="${p.w}"/>
     <circle cx="9" cy="-28" r="2.1" fill="${p.w}"/>
   </svg>`
-  outer.appendChild(wave)
+  outer.appendChild(inner)
   return outer
 }
 
@@ -228,7 +229,10 @@ export default function App() {
   // Streak flame popup
   const [streakFlame, setStreakFlame] = useState(null)
   const [streakFlameShow, setStreakFlameShow] = useState(false)
+  const [displayCount, setDisplayCount] = useState(0)
   const flameTimerRef = useRef(null)
+  const flameElRef = useRef(null)
+  const isFirstRender = useRef(true)
 
   // Breathing completion celebration
   const [breatheShow, setBreatheShow] = useState(false)
@@ -282,13 +286,35 @@ export default function App() {
       for (let i = 0; i < count; i++) {
         setTimeout(() => {
           const bf = makeBF()
-          bf.style.top = (18 + Math.random() * 40) + 'vh'
-          const dur = 22 + Math.random() * 8
-          bf.style.animationDuration = dur + 's'
-          const wave = bf.querySelector('.bf-wave')
-          if (wave) wave.style.animationDuration = (8 + Math.random() * 3).toFixed(1) + 's'
           stage.appendChild(bf)
-          setTimeout(() => bf.remove(), (dur + 1) * 1000)
+
+          const vw = window.innerWidth
+          const vh = window.innerHeight
+          const sy = (0.18 + Math.random() * 0.38) * vh
+          // S-curve: dip below mid-path then rise, giving lazy figure-8 feel
+          const dip = (Math.random() > 0.5 ? 1 : -1) * (25 + Math.random() * 45)
+          const totalDur = (20 + Math.random() * 10) * 1000
+
+          animate(bf, {
+            keyframes: [
+              { translateX: -90, translateY: sy,         opacity: 0 },
+              { translateX: vw * 0.12, translateY: sy - dip * 0.9, opacity: 1 },
+              { translateX: vw * 0.32, translateY: sy + dip * 0.5 },
+              { translateX: vw * 0.55, translateY: sy - dip * 0.7 },
+              { translateX: vw * 0.78, translateY: sy + dip * 0.4 },
+              { translateX: vw + 90,  translateY: sy,         opacity: 0 },
+            ],
+            duration: totalDur,
+            easing: 'inOutSine',
+            onComplete: () => bf.remove(),
+          })
+
+          // Wing flutter — scaleX oscillation via anime.js
+          const wl = bf.querySelector('.wl')
+          const wr = bf.querySelector('.wr')
+          const flutterPeriod = (280 + Math.random() * 160)
+          if (wl) animate(wl, { scaleX: [1, 0.08, 1], duration: flutterPeriod, loop: true, easing: 'inOutSine' })
+          if (wr) animate(wr, { scaleX: [1, 0.08, 1], duration: flutterPeriod, loop: true, easing: 'inOutSine' })
         }, i * 4500)
       }
     }
@@ -488,6 +514,56 @@ export default function App() {
     setBreatheShow(false)
     setPlantGoldGlow(false)
   }, [])
+
+  // Flame popup — spring entrance + count-up number
+  useEffect(() => {
+    const el = flameElRef.current
+    if (!el) return
+    if (streakFlameShow) {
+      const count = streakFlame?.count || 0
+      setDisplayCount(0)
+      set(el, { translateY: 120, opacity: 0, scale: 0.85 })
+      animate(el, {
+        translateY: [120, 0],
+        opacity: [0, 1],
+        scale: [0.85, 1],
+        easing: spring({ stiffness: 200, damping: 12 }),
+      })
+      const counter = { val: 0 }
+      animate(counter, {
+        val: count,
+        duration: 600,
+        easing: 'easeOutQuart',
+        onUpdate: () => setDisplayCount(Math.round(counter.val)),
+      })
+    } else {
+      animate(el, {
+        translateY: -16,
+        opacity: 0,
+        duration: 260,
+        easing: 'easeInQuart',
+      })
+    }
+  }, [streakFlameShow])
+
+  // Card entrance stagger on tab switch (and initial load)
+  useEffect(() => {
+    const delay = isFirstRender.current ? 950 : 50
+    isFirstRender.current = false
+    const id = setTimeout(() => {
+      const cards = document.querySelectorAll('.tab-pane-active .card')
+      if (!cards.length) return
+      set(cards, { opacity: 0, translateY: 20 })
+      animate(cards, {
+        opacity: [0, 1],
+        translateY: [20, 0],
+        duration: 380,
+        delay: stagger(75),
+        easing: 'easeOutQuart',
+      })
+    }, delay)
+    return () => clearTimeout(id)
+  }, [activeTab])
 
   const handlePlantTap = useCallback(() => { if (!muted) sndPlant() }, [muted])
 
@@ -700,13 +776,13 @@ export default function App() {
         </div>
       </div>
 
-      {/* ── STREAK FLAME STICKER ── */}
-      {streakFlameShow && (
-        <div className="streak-flame-float">
+      {/* ── STREAK FLAME STICKER ── anime.js drives opacity/transform */}
+      <div className="sf-float-wrap">
+        <div className="streak-flame-float" ref={flameElRef} style={{ opacity: 0 }}>
           <div className="sf-flame-only">🔥</div>
-          <div className="sf-count-only">{streakFlame?.count} day streak</div>
+          <div className="sf-count-only">{displayCount} day streak</div>
         </div>
-      )}
+      </div>
 
       {/* ── BREATHING COMPLETION OVERLAY ── */}
       {breatheShow && (

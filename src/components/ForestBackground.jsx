@@ -1,4 +1,5 @@
-import { useMemo } from 'react'
+import { useMemo, useEffect, useRef } from 'react'
+import { animate } from 'animejs'
 
 function treeD(cx, baseY, w, h) {
   const t = Math.max(4, w * 0.09)
@@ -46,17 +47,20 @@ const MID_TREES = [
   [-5, 220, 44, 150],
 ]
 
-const RAYS = [
-  { rot: -42, x: 64, op: 0.032 },
-  { rot: -28, x: 60, op: 0.052 },
-  { rot: -15, x: 57, op: 0.072 },
-  { rot: -4, x: 55, op: 0.086 },
-  { rot: 7, x: 53, op: 0.068 },
-  { rot: 20, x: 51, op: 0.044 },
-  { rot: 33, x: 49, op: 0.028 },
+// SVG god rays — fan from a central point above the trees
+const SVG_RAYS = [
+  { angle: -44, w: 55, op: 0.032 },
+  { angle: -30, w: 50, op: 0.050 },
+  { angle: -17, w: 46, op: 0.072 },
+  { angle:  -5, w: 44, op: 0.088 },
+  { angle:   6, w: 42, op: 0.068 },
+  { angle:  18, w: 40, op: 0.046 },
+  { angle:  30, w: 38, op: 0.030 },
 ]
 
 export default function ForestBackground() {
+  const raysSvgRef = useRef(null)
+
   const particles = useMemo(() => Array.from({ length: 48 }, (_, i) => ({
     id: i,
     x: 1 + Math.random() * 98,
@@ -67,6 +71,28 @@ export default function ForestBackground() {
     drift: Math.round(-30 + Math.random() * 60),
     opacity: 0.55 + Math.random() * 0.45,
   })), [])
+
+  useEffect(() => {
+    const svg = raysSvgRef.current
+    if (!svg) return
+    const rays = svg.querySelectorAll('.svg-ray')
+    const anims = []
+
+    rays.forEach((ray, i) => {
+      const base = SVG_RAYS[i].op
+      const a = animate(ray, {
+        opacity: [base * 0.40, base * 1.70],
+        duration: 4000 + i * 700,
+        delay: i * 520,
+        direction: 'alternate',
+        loop: true,
+        easing: 'inOutSine',
+      })
+      anims.push(a)
+    })
+
+    return () => anims.forEach(a => a.pause())
+  }, [])
 
   return (
     <div className="forest-bg" aria-hidden="true">
@@ -84,20 +110,37 @@ export default function ForestBackground() {
         </svg>
       </div>
 
-      <div className="forest-rays">
-        {RAYS.map((r, i) => (
-          <div
-            key={i}
-            className="forest-ray"
-            style={{
-              left: `${r.x}%`,
-              opacity: r.op,
-              transform: `rotate(${r.rot}deg)`,
-              animationDelay: `${i * 0.7}s`,
-            }}
-          />
-        ))}
-      </div>
+      {/* SVG GOD RAYS — organic light beams fanning from above */}
+      <svg
+        ref={raysSvgRef}
+        className="forest-rays-svg"
+        xmlns="http://www.w3.org/2000/svg"
+        aria-hidden="true"
+      >
+        <defs>
+          <linearGradient id="rayGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%"   stopColor="#fff8e1" stopOpacity="0.90" />
+            <stop offset="60%"  stopColor="#ffe082" stopOpacity="0.22" />
+            <stop offset="100%" stopColor="#ffe082" stopOpacity="0"    />
+          </linearGradient>
+        </defs>
+        {/* Rays fan from 50% horizontal, 7% vertical — sits above the tree line */}
+        <g style={{ transform: 'translate(50%, 7%)' }}>
+          {SVG_RAYS.map((r, i) => (
+            <rect
+              key={i}
+              className="svg-ray"
+              x={-r.w / 2}
+              y={0}
+              width={r.w}
+              height={1400}
+              fill="url(#rayGrad)"
+              opacity={r.op}
+              style={{ transformOrigin: '0 0', transform: `rotate(${r.angle}deg)` }}
+            />
+          ))}
+        </g>
+      </svg>
 
       <div className="forest-layer-mid">
         <svg
@@ -110,6 +153,20 @@ export default function ForestBackground() {
             <path key={i} d={treeD(cx, y, w, h)} fill="#060f08" />
           ))}
           <rect x="0" y="212" width="430" height="12" fill="#060f08" />
+        </svg>
+      </div>
+
+      <div className="forest-layer-front">
+        <svg
+          viewBox="0 0 430 80"
+          preserveAspectRatio="none"
+          xmlns="http://www.w3.org/2000/svg"
+          style={{ width: '100%', height: '100%' }}
+        >
+          <path
+            d="M0 80 Q4 42 12 60 Q18 22 28 52 Q33 12 42 46 Q48 28 54 56 Q60 16 68 48 Q74 34 80 58 Q86 18 94 50 Q100 38 106 60 Q112 22 122 50 Q128 36 134 58 Q140 16 150 48 Q156 30 162 56 Q168 20 178 48 Q184 36 190 58 Q196 12 208 46 Q214 28 220 54 Q226 18 236 48 Q242 34 248 58 Q254 14 264 48 Q270 30 276 55 Q282 18 292 50 Q298 36 304 60 Q310 20 320 50 Q326 38 332 58 Q338 14 348 48 Q354 30 360 55 Q366 20 376 50 Q382 36 388 60 Q394 16 404 48 Q410 32 416 56 Q422 18 428 50 L430 80 Z"
+            fill="#030a04"
+          />
         </svg>
       </div>
 
@@ -130,20 +187,6 @@ export default function ForestBackground() {
             }}
           />
         ))}
-      </div>
-
-      <div className="forest-layer-front">
-        <svg
-          viewBox="0 0 430 80"
-          preserveAspectRatio="none"
-          xmlns="http://www.w3.org/2000/svg"
-          style={{ width: '100%', height: '100%' }}
-        >
-          <path
-            d="M0 80 Q4 42 12 60 Q18 22 28 52 Q33 12 42 46 Q48 28 54 56 Q60 16 68 48 Q74 34 80 58 Q86 18 94 50 Q100 38 106 60 Q112 22 122 50 Q128 36 134 58 Q140 16 150 48 Q156 30 162 56 Q168 20 178 48 Q184 36 190 58 Q196 12 208 46 Q214 28 220 54 Q226 18 236 48 Q242 34 248 58 Q254 14 264 48 Q270 30 276 55 Q282 18 292 50 Q298 36 304 60 Q310 20 320 50 Q326 38 332 58 Q338 14 348 48 Q354 30 360 55 Q366 20 376 50 Q382 36 388 60 Q394 16 404 48 Q410 32 416 56 Q422 18 428 50 L430 80 Z"
-            fill="#030a04"
-          />
-        </svg>
       </div>
 
       <div className="forest-mist">
