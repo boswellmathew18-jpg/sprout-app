@@ -410,18 +410,20 @@ export default function App() {
       return next
     })
 
-    // Streak flame popup — only first save of the day
+    // Streak flame sticker — only first save of the day
     if (saveStreak >= 1 && !alreadySaved) {
       const msData = MS_DATA[saveStreak] || null
       setTimeout(() => {
         if (!isMuted) sndStreakSave()
         setStreakFlame({ count: saveStreak, milestone: msData })
         setStreakFlameShow(true)
-        launchConfetti()
         clearTimeout(flameTimerRef.current)
-        flameTimerRef.current = setTimeout(() => setStreakFlameShow(false), 2500)
+        flameTimerRef.current = setTimeout(() => setStreakFlameShow(false), 2100)
       }, 400)
     }
+
+    // Confetti for a perfect day
+    if (score === 3 && !alreadySaved) launchConfetti()
 
     if (isSurprise) {
       const type = SURPRISE_TYPES[Math.floor(Math.random() * 3)]
@@ -456,11 +458,6 @@ export default function App() {
     clearTimeout(breatheTimerRef.current)
     setBreatheShow(false)
     setPlantGoldGlow(false)
-  }, [])
-
-  const dismissFlame = useCallback(() => {
-    clearTimeout(flameTimerRef.current)
-    setStreakFlameShow(false)
   }, [])
 
   const handlePlantTap = useCallback(() => { if (!muted) sndPlant() }, [muted])
@@ -673,16 +670,11 @@ export default function App() {
         </div>
       </div>
 
-      {/* ── STREAK FLAME POPUP ── */}
+      {/* ── STREAK FLAME STICKER ── */}
       {streakFlameShow && (
-        <div className="streak-flame-ov" onClick={dismissFlame}>
-          <div className={`sf-inner${streakFlame?.milestone ? ' sf-milestone' : ''}`}>
-            <div className="sf-flame">🔥</div>
-            <div className="sf-count">{streakFlame?.count} Day Streak!</div>
-            {streakFlame?.milestone && (
-              <div className="sf-milestone-sub">{streakFlame.milestone.sub}</div>
-            )}
-          </div>
+        <div className="streak-flame-float">
+          <div className="sf-flame-only">🔥</div>
+          <div className="sf-count-only">{streakFlame?.count} day streak</div>
         </div>
       )}
 
