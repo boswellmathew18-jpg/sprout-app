@@ -105,7 +105,10 @@ function getTimeEmoji() {
 }
 
 function SplitText({ text, emoji }) {
-  const chars = [...text]
+  const commaIdx = text.indexOf(', ')
+  const wordPart = commaIdx !== -1 ? text.slice(0, commaIdx) : text
+  const namePart = commaIdx !== -1 ? text.slice(commaIdx) : ''
+  const chars = [...wordPart]
   return (
     <>
       {chars.map((ch, i) => (
@@ -120,10 +123,20 @@ function SplitText({ text, emoji }) {
           {ch === ' ' ? ' ' : ch}
         </span>
       ))}
+      {namePart && (
+        <span
+          className="split-char"
+          style={{
+            animationDelay: `${chars.length * 40}ms`,
+            display: 'inline-block',
+            whiteSpace: 'nowrap',
+          }}
+        >{namePart}</span>
+      )}
       {emoji && (
         <span
           className="split-char"
-          style={{ animationDelay: `${chars.length * 40 + 20}ms`, display: 'inline-block' }}
+          style={{ animationDelay: `${chars.length * 40 + (namePart ? 40 : 20)}ms`, display: 'inline-block' }}
         >
           {' '}{emoji}
         </span>
