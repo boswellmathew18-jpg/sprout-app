@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { animate, stagger, spring, set, remove } from 'animejs'
-import WelcomeScreen from './components/WelcomeScreen'
+import Onboarding from './components/Onboarding'
 import PlantDisplay from './components/PlantDisplay'
 import HabitStreak from './components/HabitStreak'
 import WaterSleep from './components/WaterSleep'
@@ -397,11 +397,11 @@ export default function App() {
     })
   }, [muted, persist])
 
-  const handleAddHabit = useCallback(() => {
+  const handleAddHabit = useCallback((emoji) => {
     const id = 'h' + Date.now()
     setSproutState(prev => {
       if ((prev.habits || []).length >= 3) return prev
-      const next = { ...prev, habits: [...(prev.habits || []), { id, name: '' }] }
+      const next = { ...prev, habits: [...(prev.habits || []), { id, name: '', emoji: emoji || '' }] }
       persist(next)
       return next
     })
@@ -612,7 +612,7 @@ export default function App() {
     setUserName(name)
   }
 
-  if (!userName) return <WelcomeScreen onComplete={handleWelcomeComplete} lang={lang} />
+  if (!userName) return <Onboarding onComplete={handleWelcomeComplete} />
 
   const dateStr = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })
   const greeting = getGreeting(lang, userName)

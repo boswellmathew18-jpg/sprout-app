@@ -1,6 +1,8 @@
 import { useState, useRef } from 'react'
 import { TR } from '../translations'
 
+const HABIT_EMOJIS = ['🏃','💪','📚','🧘','💧','🌿','✍️','🎯','🍎','😴','🎨','🎵','✝️','📖']
+
 function HabitRow({ habit, done, streak, onToggle, onRename, onDelete, lang }) {
   const [editing, setEditing] = useState(!habit.name)
   const [inputVal, setInputVal] = useState('')
@@ -33,6 +35,7 @@ function HabitRow({ habit, done, streak, onToggle, onRename, onDelete, lang }) {
       <div className="habit-row">
         <div ref={checkRef} className={`h-check ${done ? 'done' : ''}`} onClick={handleCheck}>
           <div className="h-fill" />
+          {habit.emoji && <span className="h-emoji-icon">{habit.emoji}</span>}
           <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
             <path d="M5 13l6 6 10-13" stroke="white" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
@@ -71,36 +74,57 @@ function HabitRow({ habit, done, streak, onToggle, onRename, onDelete, lang }) {
 
 export default function HabitStreak({ habits, streaks, doneMap, lang, onToggle, onAdd, onDelete, onRename }) {
   const t = TR[lang]
+  const [pickingEmoji, setPickingEmoji] = useState(false)
+
+  const handlePickEmoji = emoji => {
+    onAdd(emoji)
+    setPickingEmoji(false)
+  }
 
   return (
-    <div className="card">
-      <div className="habit-card-hdr">
-        <div className="card-ttl" style={{ marginBottom: 0 }}>{t.habitTtl}</div>
-        {habits.length < 3 && (
-          <button className="habit-add" onClick={onAdd} aria-label="Add habit">+</button>
-        )}
-      </div>
-
-      {habits.length === 0 ? (
-        <div className="habit-empty" onClick={onAdd}>+ {t.ph}</div>
-      ) : (
-        <div className="habit-list">
-          {habits.map((h, i) => (
-            <div key={h.id}>
-              {i > 0 && <div className="habit-divider" />}
-              <HabitRow
-                habit={h}
-                done={doneMap[h.id] || false}
-                streak={streaks[h.id] || 0}
-                onToggle={onToggle}
-                onRename={onRename}
-                onDelete={onDelete}
-                lang={lang}
-              />
+    <>
+      {pickingEmoji && (
+        <div className="ep-overlay" onClick={() => setPickingEmoji(false)}>
+          <div className="ep-picker" onClick={e => e.stopPropagation()}>
+            <div className="ep-title">Pick an icon</div>
+            <div className="ep-grid">
+              {HABIT_EMOJIS.map(em => (
+                <button key={em} className="ep-opt" onClick={() => handlePickEmoji(em)}>{em}</button>
+              ))}
             </div>
-          ))}
+          </div>
         </div>
       )}
-    </div>
+
+      <div className="card">
+        <div className="habit-card-hdr">
+          <div className="card-ttl" style={{ marginBottom: 0 }}>{t.habitTtl}</div>
+          {habits.length < 3 && (
+            <button className="habit-add" onClick={() => setPickingEmoji(true)} aria-label="Add habit">+</button>
+          )}
+        </div>
+
+        {habits.length === 0 ? (
+          <div className="habit-empty" onClick={() => setPickingEmoji(true)}>+ {t.ph}</div>
+        ) : (
+          <div className="habit-list">
+            {habits.map((h, i) => (
+              <div key={h.id}>
+                {i > 0 && <div className="habit-divider" />}
+                <HabitRow
+                  habit={h}
+                  done={doneMap[h.id] || false}
+                  streak={streaks[h.id] || 0}
+                  onToggle={onToggle}
+                  onRename={onRename}
+                  onDelete={onDelete}
+                  lang={lang}
+                />
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </>
   )
 }
