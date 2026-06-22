@@ -1,69 +1,59 @@
 import { useState } from 'react'
 
-function IsometricForest() {
-  const trees = [
-    [55, 155, 0.55, '#091a0c'], [110, 130, 0.90, '#0d2811'], [175, 115, 1.05, '#112f14'],
-    [245, 128, 0.82, '#0c2410'], [300, 150, 0.62, '#091a0b'], [28,  168, 0.45, '#081508'],
-    [82,  110, 0.75, '#0e2812'], [148, 95,  1.10, '#132e16'], [215, 100, 0.95, '#102c13'],
-    [280, 118, 0.70, '#0b2010'], [330, 140, 0.58, '#091808'], [38,  138, 0.60, '#0a1c0d'],
-    [128, 148, 0.65, '#0c2110'], [198, 145, 0.72, '#0b1f0e'], [255, 162, 0.52, '#08160a'],
-  ]
+const TREES = [
+  { cx: 55,  gy: 148, sc: 0.80, col: '#1c5022' },
+  { cx: 112, gy: 130, sc: 1.08, col: '#235c2a' },
+  { cx: 180, gy: 116, sc: 1.24, col: '#1e5626' },
+  { cx: 250, gy: 128, sc: 1.00, col: '#205828' },
+  { cx: 308, gy: 144, sc: 0.82, col: '#1a4e20' },
+]
 
+function ForestPlaceholder() {
   return (
-    <svg viewBox="0 0 360 210" xmlns="http://www.w3.org/2000/svg" style={{ width: '100%', height: '100%', display: 'block' }}>
+    <svg viewBox="0 0 360 185" xmlns="http://www.w3.org/2000/svg" style={{ width: '100%', height: '100%', display: 'block' }}>
       <defs>
-        <linearGradient id="fpSky" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#020704" />
-          <stop offset="100%" stopColor="#081a0d" />
-        </linearGradient>
-        <radialGradient id="fpGround" cx="50%" cy="100%" r="65%">
-          <stop offset="0%" stopColor="#1a3a1e" />
-          <stop offset="100%" stopColor="#081408" />
+        <radialGradient id="fpMoonGlow" cx="80%" cy="20%" r="40%">
+          <stop offset="0%" stopColor="#4a7a50" stopOpacity="0.20" />
+          <stop offset="100%" stopColor="transparent" stopOpacity="0" />
         </radialGradient>
-        <radialGradient id="fpGlow" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stopColor="rgba(50,160,70,0.30)" />
-          <stop offset="100%" stopColor="transparent" />
+        <radialGradient id="fpGround" cx="50%" cy="100%" r="60%">
+          <stop offset="0%" stopColor="#143320" />
+          <stop offset="100%" stopColor="#09170d" />
         </radialGradient>
       </defs>
 
-      <rect width="360" height="210" fill="url(#fpSky)" />
+      {/* Sky */}
+      <rect width="360" height="185" fill="#071210" />
+      <rect width="360" height="185" fill="url(#fpMoonGlow)" />
 
       {/* Moon */}
-      <circle cx="310" cy="32" r="18" fill="rgba(255,245,215,0.12)" />
-      <circle cx="310" cy="32" r="13" fill="rgba(255,245,215,0.18)" />
+      <circle cx="300" cy="32" r="17" fill="rgba(235,252,240,0.14)" />
+      <circle cx="300" cy="32" r="12" fill="rgba(235,252,240,0.22)" />
 
       {/* Stars */}
-      {[[60,20],[130,14],[200,22],[260,10],[40,38],[320,55],[170,8]].map(([x, y], i) => (
-        <circle key={i} cx={x} cy={y} r={1.2} fill="rgba(220,240,230,0.55)" />
-      ))}
-
-      {/* Fireflies */}
-      {[[80,88],[155,72],[225,108],[120,80],[285,92],[48,125],[195,60]].map(([x, y], i) => (
-        <circle key={i} cx={x} cy={y} r={1.8} fill="rgba(190,255,190,0.65)" />
+      {[[50,16],[118,10],[190,20],[250,8],[330,24],[78,32],[162,6],[225,28]].map(([x, y], i) => (
+        <circle key={i} cx={x} cy={y} r={1.2} fill="rgba(205,238,218,0.48)" />
       ))}
 
       {/* Ground */}
-      <ellipse cx="180" cy="188" rx="175" ry="32" fill="url(#fpGround)" />
-      <ellipse cx="180" cy="183" rx="120" ry="18" fill="url(#fpGlow)" />
+      <ellipse cx="180" cy="178" rx="205" ry="28" fill="url(#fpGround)" />
 
-      {/* Trees back to front */}
-      {trees.map(([x, y, sc, col], i) => {
-        const h = 72 * sc
-        const w = 34 * sc
-        const tw = 6.5 * sc
-        const th = 16 * sc
+      {/* Trees — clearly visible tiered pines */}
+      {TREES.map(({ cx, gy, sc, col }, i) => {
+        const h = 72 * sc, w = 33 * sc, tw = 5.5 * sc, ts = 14 * sc
         return (
-          <g key={i} transform={`translate(${x},${y})`}>
-            <rect x={-tw / 2} y={-th} width={tw} height={th + 4} rx={tw / 3} fill={col} opacity={0.85} />
-            <polygon points={`0,${-h} ${-w * 0.65},${-h * 0.42} ${w * 0.65},${-h * 0.42}`} fill={col} opacity={0.72} />
-            <polygon points={`0,${-h * 0.60} ${-w * 0.85},${-h * 0.15} ${w * 0.85},${-h * 0.15}`} fill={col} opacity={0.84} />
-            <polygon points={`0,${-h * 0.28} ${-w},0 ${w},0`} fill={col} />
+          <g key={i}>
+            <rect x={cx - tw / 2} y={gy - ts} width={tw} height={ts + 3} rx={tw / 3} fill="#0c2a10" />
+            <polygon points={`${cx},${gy - h} ${cx - w * 0.50},${gy - h * 0.44} ${cx + w * 0.50},${gy - h * 0.44}`} fill={col} opacity="0.62" />
+            <polygon points={`${cx},${gy - h * 0.60} ${cx - w * 0.80},${gy - h * 0.18} ${cx + w * 0.80},${gy - h * 0.18}`} fill={col} opacity="0.80" />
+            <polygon points={`${cx},${gy - h * 0.30} ${cx - w},${gy} ${cx + w},${gy}`} fill={col} />
+            <polygon points={`${cx},${gy - h * 0.30} ${cx - w},${gy} ${cx + w},${gy}`} fill="rgba(255,255,255,0.04)" />
           </g>
         )
       })}
 
       {/* Ground mist */}
-      <ellipse cx="180" cy="195" rx="170" ry="18" fill="rgba(200,240,220,0.06)" />
+      <ellipse cx="180" cy="182" rx="180" ry="12" fill="rgba(180,240,210,0.07)" />
     </svg>
   )
 }
@@ -82,9 +72,8 @@ export default function ForestPreview() {
           <div className="fp-modal" onClick={e => e.stopPropagation()}>
             <button className="fp-x" onClick={() => setOpen(false)}>✕</button>
             <div className="fp-forest-wrap">
-              <div className="fp-forest-blur">
-                <IsometricForest />
-              </div>
+              <ForestPlaceholder />
+              <div className="fp-grow-label">🌱 Your forest is growing...</div>
               <div className="fp-veil" />
             </div>
             <div className="fp-lock">

@@ -12,6 +12,7 @@ import Breathe from './components/Breathe'
 import MoodHistory from './components/MoodHistory'
 import ForestPreview from './components/ForestPreview'
 import StreakCalendar from './components/StreakCalendar'
+import WeeklyStats from './components/WeeklyStats'
 import { TR, FLAGS, CODES, LANGS } from './translations'
 import { sndHabit, sndWater, sndWaterTap, sndSleep, sndEmoji, sndSave, sndPlant, sndMilestone, sndStreakSave, sndBreathingComplete, startAmbient, stopAmbient } from './audio'
 
@@ -263,6 +264,9 @@ export default function App() {
   for (const h of habits) {
     streaks[h.id] = recalcHabitStreak(sproutState.days, TODAY, h.id)
   }
+
+  const anyHabitDoneToday = habits.some(h => doneMap[h.id])
+  const showSeedMsg = recalcSaveStreak(sproutState.days, TODAY) === 0 && !anyHabitDoneToday
 
   const score = (() => {
     let n = 0
@@ -667,6 +671,10 @@ export default function App() {
             goldGlow={plantGoldGlow}
           />
 
+          {showSeedMsg && (
+            <p className="seed-msg">Every forest starts with one seed. Start your first habit today.</p>
+          )}
+
           {/* HABITS */}
           <HabitStreak
             habits={habits}
@@ -732,6 +740,7 @@ export default function App() {
             <p className="growth-sub">{dateStr}</p>
           </div>
           <StreakCalendar days={sproutState.days} />
+          <WeeklyStats days={sproutState.days} habits={habits} />
           <MoodHistory />
           <ForestPreview />
         </div>
