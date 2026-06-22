@@ -37,6 +37,12 @@ body{
   overflow:hidden;
   pointer-events:none;
   z-index:1;
+  transform-origin:50% 0%;
+  animation:rays-sway 11s ease-in-out infinite alternate;
+}
+@keyframes rays-sway{
+  0%  {transform:rotate(-0.7deg)}
+  100%{transform:rotate(0.7deg)}
 }
 .forest-particles{
   position:absolute;inset:0;overflow:hidden;
@@ -340,20 +346,20 @@ body{
 
 /* ── CARDS — liquid glass ── */
 .card{
-  backdrop-filter:blur(60px) saturate(1.9) brightness(1.08);
-  -webkit-backdrop-filter:blur(60px) saturate(1.9) brightness(1.08);
+  backdrop-filter:blur(80px) saturate(2.1) brightness(1.04);
+  -webkit-backdrop-filter:blur(80px) saturate(2.1) brightness(1.04);
   border-radius:var(--r);
   padding:20px 20px 22px;margin-bottom:14px;
   position:relative;overflow:hidden;
   border:1px solid transparent;
   background-image:
-    linear-gradient(rgba(255,255,255,0.16),rgba(255,255,255,0.10)),
-    linear-gradient(135deg,rgba(255,255,255,0.46) 0%,rgba(255,255,255,0.14) 45%,rgba(255,255,255,0.24) 100%);
+    linear-gradient(rgba(255,255,255,0.08),rgba(255,255,255,0.04)),
+    linear-gradient(135deg,rgba(255,255,255,0.36) 0%,rgba(255,255,255,0.09) 45%,rgba(255,255,255,0.18) 100%);
   background-clip:padding-box,border-box;
   background-origin:padding-box,border-box;
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.38),
-    inset 0 0 40px rgba(255,255,255,0.05),
+    inset 0 1px 0 rgba(255,255,255,0.32),
+    inset 0 0 40px rgba(255,255,255,0.03),
     0 28px 70px rgba(0,0,0,0.52),
     0 10px 28px rgba(0,0,0,0.30),
     0 2px 8px rgba(0,0,0,0.18);

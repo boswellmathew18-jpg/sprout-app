@@ -38,8 +38,10 @@ export const sndSave = () => {
   setTimeout(() => tone(784, 0.28, 0.09), 230)
 }
 export const sndPlant = () => {
-  tone(523, 0.08, 0.09)
-  setTimeout(() => tone(659, 0.08, 0.08), 85)
+  tone(523, 0.12, 0.09, 'sine')
+  setTimeout(() => tone(659, 0.12, 0.08, 'sine'), 65)
+  setTimeout(() => tone(784, 0.14, 0.08, 'sine'), 130)
+  setTimeout(() => tone(1047, 0.22, 0.07, 'sine'), 205)
 }
 export const sndMilestone = () => {
   tone(784, 0.5, 0.09)

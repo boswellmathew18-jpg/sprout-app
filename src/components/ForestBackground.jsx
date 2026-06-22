@@ -47,16 +47,22 @@ const MID_TREES = [
   [-5, 220, 44, 150],
 ]
 
-// SVG god rays — fan from a central point above the trees
-const SVG_RAYS = [
-  { angle: -44, w: 55, op: 0.032 },
-  { angle: -30, w: 50, op: 0.050 },
-  { angle: -17, w: 46, op: 0.072 },
-  { angle:  -5, w: 44, op: 0.088 },
-  { angle:   6, w: 42, op: 0.068 },
-  { angle:  18, w: 40, op: 0.046 },
-  { angle:  30, w: 38, op: 0.030 },
+// Soft organic sunlight beams — warm golden, blurred trapezoid shapes
+const SOFT_RAYS = [
+  { angle: -50, topW: 30, botW: 105, op: 0.09 },
+  { angle: -32, topW: 24, botW:  88, op: 0.14 },
+  { angle: -14, topW: 20, botW:  72, op: 0.19 },
+  { angle:   2, topW: 16, botW:  65, op: 0.22 },
+  { angle:  16, topW: 20, botW:  76, op: 0.17 },
+  { angle:  30, topW: 18, botW:  68, op: 0.13 },
+  { angle:  44, topW: 16, botW:  58, op: 0.08 },
+  { angle:  56, topW: 14, botW:  48, op: 0.06 },
 ]
+
+function rayPath(topW, botW, len = 1100) {
+  const tw = topW / 2, bw = botW / 2
+  return `M${-tw} 3 L${-bw} ${len} L${bw} ${len} L${tw} 3 Z`
+}
 
 export default function ForestBackground() {
   const raysSvgRef = useRef(null)
@@ -79,11 +85,11 @@ export default function ForestBackground() {
     const anims = []
 
     rays.forEach((ray, i) => {
-      const base = SVG_RAYS[i].op
+      const base = SOFT_RAYS[i].op
       const a = animate(ray, {
-        opacity: [base * 0.40, base * 1.70],
-        duration: 4000 + i * 700,
-        delay: i * 520,
+        opacity: [base * 0.28, base],
+        duration: 4200 + i * 260,
+        delay: i * 620,
         alternate: true,
         loop: Infinity,
         ease: 'inOutSine',
@@ -110,7 +116,7 @@ export default function ForestBackground() {
         </svg>
       </div>
 
-      {/* SVG GOD RAYS — organic light beams fanning from above */}
+      {/* SVG GOD RAYS — soft organic sunlight beams */}
       <svg
         ref={raysSvgRef}
         className="forest-rays-svg"
@@ -118,24 +124,26 @@ export default function ForestBackground() {
         aria-hidden="true"
       >
         <defs>
-          <linearGradient id="rayGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%"   stopColor="#fff8e1" stopOpacity="0.90" />
-            <stop offset="60%"  stopColor="#ffe082" stopOpacity="0.22" />
-            <stop offset="100%" stopColor="#ffe082" stopOpacity="0"    />
+          <linearGradient id="rayGoldGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%"   stopColor="#FFD700" stopOpacity="0.95" />
+            <stop offset="35%"  stopColor="#FFA500" stopOpacity="0.60" />
+            <stop offset="72%"  stopColor="#FF8C00" stopOpacity="0.18" />
+            <stop offset="100%" stopColor="#FF6600" stopOpacity="0"    />
           </linearGradient>
+          <filter id="rayBlur" x="-50%" y="-5%" width="200%" height="110%">
+            <feGaussianBlur stdDeviation="14" />
+          </filter>
         </defs>
-        {/* Rays fan from 50% horizontal, 7% vertical — sits above the tree line */}
-        <g style={{ transform: 'translate(50%, 7%)' }}>
-          {SVG_RAYS.map((r, i) => (
-            <rect
+        {/* Beams fan from ~50% horizontal, 6% vertical */}
+        <g style={{ transform: 'translate(50%, 6%)' }}>
+          {SOFT_RAYS.map((r, i) => (
+            <path
               key={i}
               className="svg-ray"
-              x={-r.w / 2}
-              y={0}
-              width={r.w}
-              height={1400}
-              fill="url(#rayGrad)"
+              d={rayPath(r.topW, r.botW)}
+              fill="url(#rayGoldGrad)"
               opacity={r.op}
+              filter="url(#rayBlur)"
               style={{ transformOrigin: '0 0', transform: `rotate(${r.angle}deg)` }}
             />
           ))}

@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react'
+import { animate, spring, set } from 'animejs'
 
 const PC = [
   ['#b2c4aa', '#98b088', '#a6be9a'],
@@ -14,7 +15,7 @@ const MOUTHS = [
 ]
 const PUPIL_R = [4, 5.5, 7, 7.5]
 const ANIM_CLS = ['p-droop', 'p-idle', 'p-sway', 'p-bloom']
-const PARTICLE_COLORS = ['#6cc274', '#50ba60', '#a8d8b5', '#7de89a', '#56a862', '#90e89a']
+const PARTICLE_COLORS = ['#6cc274', '#50ba60', '#a8d8b5', '#7de89a', '#56a862', '#90e89a', '#ffd166', '#ffb347', '#f6c90e', '#ffe066']
 
 let nextPId = 0
 
@@ -29,13 +30,14 @@ export default function PlantSvg({ score = 2, week = 1, onTap, isBreathing = fal
   const handleTap = () => {
     const el = wrapRef.current
     if (el) {
-      el.classList.remove('plant-jumping')
-      void el.offsetWidth
-      el.classList.add('plant-jumping')
-      el.addEventListener('animationend', () => el.classList.remove('plant-jumping'), { once: true })
+      set(el, { scale: 1.20 })
+      animate(el, {
+        scale: 1,
+        ease: spring({ stiffness: 220, damping: 10, mass: 0.9 }),
+      })
     }
 
-    const count = 7
+    const count = 6 + Math.floor(Math.random() * 3)
     const burst = Array.from({ length: count }, (_, i) => {
       const angle = (i / count) * Math.PI * 2 + (Math.random() - 0.5) * 0.7
       const dist = 36 + Math.random() * 30
