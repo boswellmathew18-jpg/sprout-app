@@ -13,7 +13,7 @@ import MoodHistory from './components/MoodHistory'
 import ForestPreview from './components/ForestPreview'
 import StreakCalendar from './components/StreakCalendar'
 import { TR, FLAGS, CODES, LANGS } from './translations'
-import { sndHabit, sndWater, sndEmoji, sndSave, sndPlant, sndMilestone, sndStreakSave, sndBreathingComplete, startAmbient, stopAmbient } from './audio'
+import { sndHabit, sndWater, sndWaterTap, sndSleep, sndEmoji, sndSave, sndPlant, sndMilestone, sndStreakSave, sndBreathingComplete, startAmbient, stopAmbient } from './audio'
 
 const LANG_NAMES = { en: 'English', es: 'Español', de: 'Deutsch', fr: 'Français' }
 const SURPRISE_TYPES = ['ladybug', 'rainbow', 'sun']
@@ -151,34 +151,32 @@ function makeBF() {
   const inner = document.createElement('div')
   inner.className = 'bf-inner'
   const palettes = [
-    { w: '#f08528', h: '#f5b84a', dk: '#281005', dot: '#fffbe6' },
-    { w: '#c0a4e8', h: '#ddd0f8', dk: '#2e1a50', dot: '#fef0ff' },
-    { w: '#f0c060', h: '#f8e090', dk: '#2a1a00', dot: '#ffffff' },
+    { w: 'rgba(150,170,255,0.48)', h: 'rgba(200,215,255,0.28)', body: 'rgba(120,100,200,0.60)', dot: 'rgba(230,235,255,0.85)' },
+    { w: 'rgba(190,155,255,0.45)', h: 'rgba(220,200,255,0.28)', body: 'rgba(160,100,220,0.55)', dot: 'rgba(240,235,255,0.85)' },
+    { w: 'rgba(140,205,240,0.43)', h: 'rgba(185,225,255,0.28)', body: 'rgba(80,145,210,0.55)',  dot: 'rgba(210,240,255,0.85)' },
   ]
   const p = palettes[Math.floor(Math.random() * palettes.length)]
   inner.innerHTML = `<svg width="90" height="78" viewBox="-55 -48 110 85" style="overflow:visible">
     <g class="wl">
       <path d="M 0,2 C -5,-4 -30,-42 -44,-30 C -50,-18 -30,-1 0,13" fill="${p.w}"/>
-      <path d="M 0,6 C -6,0 -24,-30 -36,-22 C -40,-14 -26,0 0,10" fill="${p.h}" opacity="0.55"/>
-      <line x1="0" y1="8" x2="-37" y2="-20" stroke="${p.dk}" stroke-width="0.7" opacity="0.38"/>
-      <circle cx="-40" cy="-26" r="2.4" fill="${p.dot}" opacity="0.82"/>
+      <path d="M 0,6 C -6,0 -24,-30 -36,-22 C -40,-14 -26,0 0,10" fill="${p.h}" opacity="0.70"/>
+      <circle cx="-40" cy="-26" r="2.4" fill="${p.dot}" opacity="0.75"/>
       <path d="M 0,12 C -10,10 -38,13 -40,28 C -38,39 -14,35 0,27" fill="${p.w}"/>
-      <path d="M 0,16 C -8,14 -30,17 -32,27 C -30,34 -12,31 0,24" fill="${p.h}" opacity="0.5"/>
+      <path d="M 0,16 C -8,14 -30,17 -32,27 C -30,34 -12,31 0,24" fill="${p.h}" opacity="0.60"/>
     </g>
     <g class="wr">
       <path d="M 0,2 C 5,-4 30,-42 44,-30 C 50,-18 30,-1 0,13" fill="${p.w}"/>
-      <path d="M 0,6 C 6,0 24,-30 36,-22 C 40,-14 26,0 0,10" fill="${p.h}" opacity="0.55"/>
-      <line x1="0" y1="8" x2="37" y2="-20" stroke="${p.dk}" stroke-width="0.7" opacity="0.38"/>
-      <circle cx="40" cy="-26" r="2.4" fill="${p.dot}" opacity="0.82"/>
+      <path d="M 0,6 C 6,0 24,-30 36,-22 C 40,-14 26,0 0,10" fill="${p.h}" opacity="0.70"/>
+      <circle cx="40" cy="-26" r="2.4" fill="${p.dot}" opacity="0.75"/>
       <path d="M 0,12 C 10,10 38,13 40,28 C 38,39 14,35 0,27" fill="${p.w}"/>
-      <path d="M 0,16 C 8,14 30,17 32,27 C 30,34 12,31 0,24" fill="${p.h}" opacity="0.5"/>
+      <path d="M 0,16 C 8,14 30,17 32,27 C 30,34 12,31 0,24" fill="${p.h}" opacity="0.60"/>
     </g>
-    <ellipse cx="0" cy="12" rx="2.8" ry="15" fill="${p.dk}"/>
-    <circle cx="0" cy="-4" r="3.2" fill="${p.dk}"/>
-    <path d="M -1,-6.5 Q -8,-20 -9,-28" stroke="${p.dk}" stroke-width="1.1" fill="none" stroke-linecap="round"/>
-    <path d="M 1,-6.5 Q 8,-20 9,-28" stroke="${p.dk}" stroke-width="1.1" fill="none" stroke-linecap="round"/>
-    <circle cx="-9" cy="-28" r="2.1" fill="${p.w}"/>
-    <circle cx="9" cy="-28" r="2.1" fill="${p.w}"/>
+    <ellipse cx="0" cy="12" rx="2.2" ry="12" fill="${p.body}"/>
+    <circle cx="0" cy="-2" r="2.6" fill="${p.body}"/>
+    <path d="M -1,-4 Q -7,-16 -8,-23" stroke="${p.body}" stroke-width="0.9" fill="none" stroke-linecap="round"/>
+    <path d="M 1,-4 Q 7,-16 8,-23" stroke="${p.body}" stroke-width="0.9" fill="none" stroke-linecap="round"/>
+    <circle cx="-8" cy="-23" r="1.8" fill="${p.dot}" opacity="0.80"/>
+    <circle cx="8" cy="-23" r="1.8" fill="${p.dot}" opacity="0.80"/>
   </svg>`
   outer.appendChild(inner)
   return outer
@@ -326,8 +324,8 @@ export default function App() {
           const wl = bf.querySelector('.wl')
           const wr = bf.querySelector('.wr')
           const flutterPeriod = (280 + Math.random() * 160)
-          if (wl) animate(wl, { scaleX: [1, 0.08, 1], duration: flutterPeriod, loop: Infinity, ease: 'inOutSine' })
-          if (wr) animate(wr, { scaleX: [1, 0.08, 1], duration: flutterPeriod, loop: Infinity, ease: 'inOutSine' })
+          if (wl) animate(wl, { scaleX: [1, 0.18, 1], duration: flutterPeriod, loop: Infinity, ease: 'inOutSine' })
+          if (wr) animate(wr, { scaleX: [1, 0.18, 1], duration: flutterPeriod, loop: Infinity, ease: 'inOutSine' })
         }, i * 4500)
       }
     }
@@ -430,7 +428,7 @@ export default function App() {
       const curWater = prev.days[TODAY]?.water || 0
       const newWater = curWater > i ? i : i + 1
       const clamped = Math.max(0, Math.min(12, newWater))
-      if (clamped > curWater && !muted) sndWater()
+      if (!muted) sndWaterTap()
       const newDays = { ...prev.days, [TODAY]: { ...prev.days[TODAY], water: clamped } }
       const next = { ...prev, days: newDays }
       persist(next)
@@ -450,7 +448,17 @@ export default function App() {
     })
   }, [muted, persist])
 
-  const handleSleepChange = useCallback(val => { updateToday({ sleep: val }) }, [updateToday])
+  const handleSleepAdj = useCallback(delta => {
+    setSproutState(prev => {
+      const cur = prev.days[TODAY]?.sleep ?? 0
+      const next_s = Math.round(Math.max(0, Math.min(12, cur + delta)) * 2) / 2
+      if (!muted) sndSleep(delta > 0)
+      const newDays = { ...prev.days, [TODAY]: { ...prev.days[TODAY], sleep: next_s } }
+      const next = { ...prev, days: newDays }
+      persist(next)
+      return next
+    })
+  }, [muted, persist])
   const handleMoodChange = useCallback(val => { if (!muted) sndEmoji(); updateToday({ mood: val }) }, [muted, updateToday])
   const handleNoteChange = useCallback(val => { updateToday({ note: val }) }, [updateToday])
 
@@ -678,7 +686,7 @@ export default function App() {
             lang={lang}
             onTapDot={handleTapDot}
             onAdjWater={handleAdjWater}
-            onSleepChange={handleSleepChange}
+            onSleepAdj={handleSleepAdj}
           />
 
           {/* JOURNAL */}

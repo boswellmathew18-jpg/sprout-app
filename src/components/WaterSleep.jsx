@@ -1,6 +1,6 @@
 import { TR } from '../translations'
 
-export default function WaterSleep({ water, sleep, lang, onTapDot, onAdjWater, onSleepChange }) {
+export default function WaterSleep({ water, sleep, lang, onTapDot, onAdjWater, onSleepAdj }) {
   const t = TR[lang]
 
   return (
@@ -38,22 +38,12 @@ export default function WaterSleep({ water, sleep, lang, onTapDot, onAdjWater, o
             <span>🌙</span>
             <span>{t.sleep}</span>
           </div>
-          <div className="sl-big">
-            <input
-              className="sl-inp"
-              type="number"
-              min="0"
-              max="24"
-              step="0.5"
-              placeholder="—"
-              value={sleep != null ? sleep : ''}
-              onChange={e => {
-                const v = parseFloat(e.target.value)
-                onSleepChange(isNaN(v) ? null : Math.max(0, Math.min(24, v)))
-              }}
-            />
-            <span className="sl-unit">{t.hrs}</span>
+          <div className="w-ctrl">
+            <button className="w-btn" onClick={() => onSleepAdj(-0.5)}>−</button>
+            <div className="sl-num">{sleep != null ? sleep : '—'}</div>
+            <button className="w-btn" onClick={() => onSleepAdj(0.5)}>+</button>
           </div>
+          <div className="w-goal">{t.hrs}</div>
         </div>
       </div>
     </div>

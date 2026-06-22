@@ -442,15 +442,7 @@ body{
 .w-btn:active{transform:scale(0.82);box-shadow:inset 0 3px 10px rgba(0,0,0,0.28),inset 0 1px 4px rgba(0,0,0,0.18)}
 .w-num{font-size:24px;font-weight:800;color:var(--txt);min-width:30px;text-align:center;line-height:1}
 .w-goal{font-size:11px;color:var(--sub)}
-.sl-big{display:flex;align-items:baseline;gap:6px;margin-top:6px}
-.sl-inp{
-  font-size:40px;font-weight:800;color:var(--txt);
-  border:none;outline:none;background:transparent;
-  font-family:inherit;width:76px;line-height:1;
-  caret-color:var(--g1);
-}
-.sl-inp::placeholder{color:rgba(180,220,195,0.28)}
-.sl-unit{font-size:14px;color:var(--sub);font-weight:600;align-self:flex-end;margin-bottom:6px}
+.sl-num{font-size:36px;font-weight:800;color:var(--txt);min-width:44px;text-align:center;line-height:1}
 
 /* ── JOURNAL ── */
 .emoji-row{display:flex;gap:6px;margin-bottom:14px}

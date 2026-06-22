@@ -26,6 +26,11 @@ export const sndHabit = () => {
   setTimeout(() => tone(880, 0.09, 0.06, 'sine'), 40)
 }
 export const sndWater = () => tone(880, 0.13, 0.07, 'sine', 620)
+export const sndWaterTap = () => tone(660, 0.10, 0.05, 'sine', 440)
+export const sndSleep = (up = true) => {
+  if (up) { tone(784, 0.12, 0.06, 'sine'); setTimeout(() => tone(1047, 0.22, 0.05, 'sine'), 70) }
+  else    { tone(659, 0.12, 0.06, 'sine'); setTimeout(() => tone(523,  0.20, 0.04, 'sine'), 65) }
+}
 export const sndEmoji = () => { tone(528, 0.14, 0.06); setTimeout(() => tone(660, 0.1, 0.04), 45) }
 export const sndSave = () => {
   tone(523, 0.18, 0.08)
