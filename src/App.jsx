@@ -264,6 +264,7 @@ export default function App() {
   const td = sproutState.days[TODAY] || { habits: {}, water: 0, sleep: null, mood: null, note: '' }
   const habits = sproutState.habits || []
   const doneMap = td.habits || {}
+  const muted = sproutState.muted
   const habitsDone = habits.length > 0 && habits.every(h => doneMap[h.id])
 
   const streaks = {}
@@ -609,7 +610,6 @@ export default function App() {
 
   const handleToggleMute = () => {
     const newVal = !muted
-    setMuted(newVal)
     setSproutState(prev => { const next = { ...prev, muted: newVal }; persist(next); return next })
   }
 
