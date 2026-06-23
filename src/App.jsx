@@ -159,7 +159,7 @@ function makeBF() {
     { w: 'rgba(140,205,240,0.43)', h: 'rgba(185,225,255,0.28)', body: 'rgba(80,145,210,0.55)',  dot: 'rgba(210,240,255,0.85)' },
   ]
   const p = palettes[Math.floor(Math.random() * palettes.length)]
-  inner.innerHTML = `<svg width="90" height="78" viewBox="-55 -48 110 85" style="overflow:visible">
+  inner.innerHTML = `<svg width="56" height="48" viewBox="-55 -48 110 85" style="overflow:visible">
     <g class="wl">
       <path d="M 0,2 C -5,-4 -30,-42 -44,-30 C -50,-18 -30,-1 0,13" fill="${p.w}"/>
       <path d="M 0,6 C -6,0 -24,-30 -36,-22 C -40,-14 -26,0 0,10" fill="${p.h}" opacity="0.70"/>
@@ -303,43 +303,37 @@ export default function App() {
     const spawnBF = () => {
       const stage = bfStageRef.current
       if (!stage) return
-      const count = score === 3 ? 2 : 1
-      for (let i = 0; i < count; i++) {
-        setTimeout(() => {
-          const bf = makeBF()
-          stage.appendChild(bf)
+      if (stage.querySelectorAll('.bf-body').length >= 2) return
+      const bf = makeBF()
+      stage.appendChild(bf)
 
-          const vw = window.innerWidth
-          const vh = window.innerHeight
-          const sy = (0.18 + Math.random() * 0.38) * vh
-          // S-curve: dip below mid-path then rise, giving lazy figure-8 feel
-          const dip = (Math.random() > 0.5 ? 1 : -1) * (25 + Math.random() * 45)
-          const totalDur = (20 + Math.random() * 10) * 1000
+      const vw = window.innerWidth
+      const vh = window.innerHeight
+      const sy = (0.20 + Math.random() * 0.34) * vh
+      const dip = (Math.random() > 0.5 ? 1 : -1) * (18 + Math.random() * 30)
+      const totalDur = (32 + Math.random() * 18) * 1000
 
-          animate(bf, {
-            keyframes: [
-              { translateX: -90, translateY: sy,         opacity: 0 },
-              { translateX: vw * 0.12, translateY: sy - dip * 0.9, opacity: 1 },
-              { translateX: vw * 0.32, translateY: sy + dip * 0.5 },
-              { translateX: vw * 0.55, translateY: sy - dip * 0.7 },
-              { translateX: vw * 0.78, translateY: sy + dip * 0.4 },
-              { translateX: vw + 90,  translateY: sy,         opacity: 0 },
-            ],
-            duration: totalDur,
-            ease: 'inOutSine',
-            onComplete: () => bf.remove(),
-          })
+      animate(bf, {
+        keyframes: [
+          { translateX: -70, translateY: sy, opacity: 0 },
+          { translateX: vw * 0.12, translateY: sy - dip * 0.9, opacity: 0.9 },
+          { translateX: vw * 0.32, translateY: sy + dip * 0.5 },
+          { translateX: vw * 0.55, translateY: sy - dip * 0.7 },
+          { translateX: vw * 0.78, translateY: sy + dip * 0.4 },
+          { translateX: vw + 70,  translateY: sy, opacity: 0 },
+        ],
+        duration: totalDur,
+        ease: 'inOutSine',
+        onComplete: () => bf.remove(),
+      })
 
-          // Wing flutter â€” scaleX oscillation via anime.js
-          const wl = bf.querySelector('.wl')
-          const wr = bf.querySelector('.wr')
-          const flutterPeriod = (280 + Math.random() * 160)
-          if (wl) animate(wl, { scaleX: [1, 0.18, 1], duration: flutterPeriod, loop: Infinity, ease: 'inOutSine' })
-          if (wr) animate(wr, { scaleX: [1, 0.18, 1], duration: flutterPeriod, loop: Infinity, ease: 'inOutSine' })
-        }, i * 4500)
-      }
+      const wl = bf.querySelector('.wl')
+      const wr = bf.querySelector('.wr')
+      const flutterPeriod = 440 + Math.random() * 220
+      if (wl) animate(wl, { scaleX: [1, 0.18, 1], duration: flutterPeriod, loop: Infinity, ease: 'inOutSine' })
+      if (wr) animate(wr, { scaleX: [1, 0.18, 1], duration: flutterPeriod, loop: Infinity, ease: 'inOutSine' })
     }
-    const id = setInterval(spawnBF, 60000)
+    const id = setInterval(spawnBF, 20000)
     return () => clearInterval(id)
   }, [userName, score])
 
