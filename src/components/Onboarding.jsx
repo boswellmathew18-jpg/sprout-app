@@ -5,6 +5,8 @@ import PlantSvg from './PlantSvg'
 export default function Onboarding({ onComplete }) {
   const [step, setStep] = useState(0)
   const [name, setName] = useState('')
+  const [showNotif, setShowNotif] = useState(false)
+  const [pendingName, setPendingName] = useState('')
   const touchStartX = useRef(null)
   const inputRef = useRef(null)
 
@@ -30,7 +32,32 @@ export default function Onboarding({ onComplete }) {
     e.preventDefault()
     const v = name.trim()
     if (!v) return
-    onComplete(v.charAt(0).toUpperCase() + v.slice(1))
+    const formatted = v.charAt(0).toUpperCase() + v.slice(1)
+    const alreadyAnswered = localStorage.getItem('sprout_notif')
+    const canPrompt = 'Notification' in window && Notification.permission === 'default' && !alreadyAnswered
+    if (!canPrompt) {
+      onComplete(formatted)
+    } else {
+      setPendingName(formatted)
+      setShowNotif(true)
+    }
+  }
+
+  const handleNotifYes = async () => {
+    try {
+      if ('Notification' in window) {
+        const perm = await Notification.requestPermission()
+        localStorage.setItem('sprout_notif', perm)
+      }
+    } catch {
+      localStorage.setItem('sprout_notif', 'denied')
+    }
+    onComplete(pendingName)
+  }
+
+  const handleNotifSkip = () => {
+    localStorage.setItem('sprout_notif', 'skipped')
+    onComplete(pendingName)
   }
 
   return (
@@ -96,6 +123,18 @@ export default function Onboarding({ onComplete }) {
           />
         ))}
       </div>
+
+      {showNotif && (
+        <div className="notif-overlay">
+          <div className="notif-card">
+            <div className="notif-icon">🔔</div>
+            <h3 className="notif-title">Daily reminders?</h3>
+            <p className="notif-sub">Let Sprout nudge you each day to check in and keep your streak alive.</p>
+            <button className="notif-btn-yes" onClick={handleNotifYes}>Yes, remind me</button>
+            <button className="notif-btn-skip" onClick={handleNotifSkip}>Maybe later</button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

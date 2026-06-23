@@ -49,14 +49,14 @@ const MID_TREES = [
 
 // Soft organic sunlight beams — warm golden, blurred trapezoid shapes
 const SOFT_RAYS = [
-  { angle: -50, topW: 30, botW: 105, op: 0.09 },
-  { angle: -32, topW: 24, botW:  88, op: 0.14 },
-  { angle: -14, topW: 20, botW:  72, op: 0.19 },
-  { angle:   2, topW: 16, botW:  65, op: 0.22 },
-  { angle:  16, topW: 20, botW:  76, op: 0.17 },
-  { angle:  30, topW: 18, botW:  68, op: 0.13 },
-  { angle:  44, topW: 16, botW:  58, op: 0.08 },
-  { angle:  56, topW: 14, botW:  48, op: 0.06 },
+  { angle: -50, topW: 40, botW: 135, op: 0.09 },
+  { angle: -32, topW: 32, botW: 112, op: 0.14 },
+  { angle: -14, topW: 27, botW:  92, op: 0.19 },
+  { angle:   2, topW: 22, botW:  84, op: 0.22 },
+  { angle:  16, topW: 26, botW:  97, op: 0.17 },
+  { angle:  30, topW: 24, botW:  87, op: 0.13 },
+  { angle:  44, topW: 21, botW:  74, op: 0.08 },
+  { angle:  56, topW: 18, botW:  62, op: 0.06 },
 ]
 
 function rayPath(topW, botW, len = 1100) {
@@ -130,8 +130,8 @@ export default function ForestBackground() {
             <stop offset="72%"  stopColor="#FF8C00" stopOpacity="0.18" />
             <stop offset="100%" stopColor="#FF6600" stopOpacity="0"    />
           </linearGradient>
-          <filter id="rayBlur" x="-50%" y="-5%" width="200%" height="110%">
-            <feGaussianBlur stdDeviation="14" />
+          <filter id="rayBlur" x="-60%" y="-5%" width="220%" height="110%">
+            <feGaussianBlur stdDeviation="20" />
           </filter>
         </defs>
         {/* Beams fan from ~50% horizontal, 6% vertical */}

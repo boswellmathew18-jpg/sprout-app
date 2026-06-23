@@ -23,6 +23,7 @@ const SK = 'sprout_data'
 const HISTORY_SK = 'sprout_history'
 const TODAY = new Date().toISOString().split('T')[0]
 const CF_COLORS = ['#6ccc78', '#ffd166', '#ffb3c6', '#5bc8ee', '#f6b73c', '#a8d8b5', '#ff9ee8']
+const GB_COLORS = ['#7de89a', '#4caf78', '#aaf4b2', '#5ddd7a', '#86efac', '#34d37a', '#a7f3d0']
 const MS_DATA = {
   3:  { emoji: '🔥', text: '3 Day Streak!',  sub: "You're building something real." },
   7:  { emoji: '🔥', text: '7 Day Streak!',  sub: 'One whole week — incredible!' },
@@ -235,6 +236,7 @@ export default function App() {
   const [milestone, setMilestone] = useState(null)
   const [milestoneShow, setMilestoneShow] = useState(false)
   const [confettiItems, setConfettiItems] = useState([])
+  const [greenBurstItems, setGreenBurstItems] = useState([])
   const [surprise, setSurprise] = useState(null)
   const [langDropOpen, setLangDropOpen] = useState(false)
 
@@ -371,6 +373,23 @@ export default function App() {
     setTimeout(() => setConfettiItems([]), 3400)
   }, [])
 
+  const launchGreenBurst = useCallback(() => {
+    const items = Array.from({ length: 44 }, (_, i) => ({
+      id: i + '_gb_' + Date.now(),
+      x: 4 + Math.random() * 92,
+      y: 48 + Math.random() * 36,
+      dur: 0.9 + Math.random() * 0.65,
+      del: Math.random() * 0.38,
+      size: 6 + Math.random() * 11,
+      br: Math.random() > 0.38 ? '50%' : Math.random() > 0.5 ? '4px' : '0',
+      col: GB_COLORS[Math.floor(Math.random() * GB_COLORS.length)],
+      rot: Math.random() * 360,
+      vy: -(52 + Math.random() * 32),
+    }))
+    setGreenBurstItems(items)
+    setTimeout(() => setGreenBurstItems([]), 1700)
+  }, [])
+
   const handleToggleHabit = useCallback((habitId) => {
     setSproutState(prev => {
       const prevDone = prev.days[TODAY]?.habits?.[habitId] || false
@@ -481,6 +500,9 @@ export default function App() {
     const saveStreak = recalcSaveStreak(newDaysPreview, TODAY)
     const isSurprise = score === 3 && sproutState.surpriseDate !== TODAY
 
+    const habitsDoneMap = sproutState.days[TODAY]?.habits || {}
+    const anyHabitDone = (sproutState.habits || []).some(h => habitsDoneMap[h.id])
+
     setSproutState(prev => {
       const todayData = { ...(prev.days[TODAY] || {}), saved: true }
       const newDays = { ...prev.days, [TODAY]: todayData }
@@ -505,6 +527,9 @@ export default function App() {
     // Confetti for a perfect day
     if (score === 3 && !alreadySaved) launchConfetti()
 
+    // Green burst whenever any habit was completed
+    if (anyHabitDone && !alreadySaved) launchGreenBurst()
+
     if (isSurprise) {
       const type = SURPRISE_TYPES[Math.floor(Math.random() * 3)]
       setTimeout(() => {
@@ -512,7 +537,7 @@ export default function App() {
         setTimeout(() => setSurprise(null), 3700)
       }, 900)
     }
-  }, [muted, lang, score, td.mood, td.note, sproutState, showToast, launchConfetti, persist])
+  }, [muted, lang, score, td.mood, td.note, sproutState, showToast, launchConfetti, launchGreenBurst, persist])
 
   const handleBreatheComplete = useCallback(() => {
     const isMuted = muted
@@ -576,7 +601,7 @@ export default function App() {
     const delay = isFirstRender.current ? 950 : 50
     isFirstRender.current = false
     const id = setTimeout(() => {
-      const cards = document.querySelectorAll('.tab-pane-active .card')
+      const cards = document.querySelectorAll('.tab-pane-active .card, .tab-pane-active .wk-stats')
       if (!cards.length) return
       set(cards, { opacity: 0, translateY: 20 })
       animate(cards, {
@@ -789,6 +814,28 @@ export default function App() {
               animationDuration: `${item.dur}s`,
               animationDelay: `${item.del}s`,
               transform: `rotate(${item.rot}deg)`,
+            }}
+          />
+        ))}
+      </div>
+
+      {/* ── GREEN BURST ── */}
+      <div className="gb-wrap">
+        {greenBurstItems.map(item => (
+          <div
+            key={item.id}
+            className="gb"
+            style={{
+              left: `${item.x}%`,
+              top: `${item.y}%`,
+              width: `${item.size}px`,
+              height: `${item.size}px`,
+              background: item.col,
+              borderRadius: item.br,
+              animationDuration: `${item.dur}s`,
+              animationDelay: `${item.del}s`,
+              transform: `rotate(${item.rot}deg)`,
+              '--gb-vy': `${item.vy}vh`,
             }}
           />
         ))}
