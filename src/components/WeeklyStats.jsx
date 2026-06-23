@@ -1,3 +1,5 @@
+import { TR } from '../translations'
+
 const TODAY = new Date().toISOString().split('T')[0]
 
 function currentSaveStreak(days) {
@@ -34,15 +36,16 @@ function habitsCompletedThisWeek(days, habits) {
   return count
 }
 
-export default function WeeklyStats({ days, habits }) {
+export default function WeeklyStats({ days, habits, lang }) {
+  const t = TR[lang] || TR['en']
   const habitDays = habitsCompletedThisWeek(days, habits)
   const curStreak = currentSaveStreak(days)
   const best = bestSaveStreak(days)
 
   const stats = [
-    { num: `${habitDays}/7`, lbl: 'Habit days\nthis week' },
-    { num: curStreak,        lbl: 'Current\nstreak' },
-    { num: best,             lbl: 'Best\nstreak' },
+    { num: `${habitDays}/7`, lbl: t.wkHabits },
+    { num: curStreak,        lbl: t.wkCurrent },
+    { num: best,             lbl: t.wkBest },
   ]
 
   return (

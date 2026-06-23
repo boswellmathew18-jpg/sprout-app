@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react'
+import { TR } from '../translations'
 
 const HISTORY_SK = 'sprout_history'
 const EMOJIS = { 1: '😞', 2: '😐', 3: '🙂', 4: '😊', 5: '😄' }
@@ -13,7 +14,8 @@ function fmtDate(str) {
   })
 }
 
-export default function MoodHistory() {
+export default function MoodHistory({ lang }) {
+  const t = TR[lang] || TR['en']
   const [open, setOpen] = useState(false)
 
   const entries = useMemo(() => {
@@ -33,18 +35,18 @@ export default function MoodHistory() {
   return (
     <>
       <button className="hist-trigger" onClick={() => setOpen(true)}>
-        📖 History
+        {t.histTrigger}
       </button>
 
       {open && (
         <div className="hist-overlay" onClick={() => setOpen(false)}>
           <div className="hist-panel" onClick={e => e.stopPropagation()}>
             <div className="hist-hdr">
-              <span className="hist-title">Mood History</span>
+              <span className="hist-title">{t.histTitle}</span>
               <button className="hist-close" onClick={() => setOpen(false)}>✕</button>
             </div>
             {entries.length === 0 ? (
-              <p className="hist-empty">No history yet — save your first day! 🌱</p>
+              <p className="hist-empty">{t.histEmpty}</p>
             ) : (
               <div className="hist-list">
                 {entries.map(e => (

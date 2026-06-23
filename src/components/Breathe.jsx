@@ -1,15 +1,17 @@
 import { useState, useEffect, useRef } from 'react'
+import { TR } from '../translations'
 
 const TOTAL_CYCLES = 7
 const PHASE_MS = 4000
 
-export default function Breathe({ onBreathing, onComplete, muted, fullScreen }) {
+export default function Breathe({ onBreathing, onComplete, muted, fullScreen, lang }) {
   const [running, setRunning] = useState(false)
   const [phase, setPhase] = useState('idle')
   const [stepsDone, setStepsDone] = useState(0)
   const timerRef = useRef(null)
   const stepRef = useRef(0)
   const total = TOTAL_CYCLES * 2
+  const t = TR[lang] || TR['en']
 
   useEffect(() => {
     if (!running) return
@@ -50,18 +52,22 @@ export default function Breathe({ onBreathing, onComplete, muted, fullScreen }) 
   }
 
   const cyclesLeft = Math.max(0, TOTAL_CYCLES - Math.floor(stepsDone / 2))
-  const phaseLabel = phase === 'inhale' ? 'Inhale' : phase === 'exhale' ? 'Exhale' : 'Breathe'
-  const phaseSub = phase === 'inhale' ? '4 seconds' : phase === 'exhale' ? '4 seconds' : ''
+  const phaseLabel = phase === 'inhale' ? t.breatheInhale : phase === 'exhale' ? t.breatheExhale : t.breatheLbl
+  const phaseSub = (phase === 'inhale' || phase === 'exhale') ? t.breatheSecs : ''
 
   return (
     <div className={fullScreen ? 'breathe-fullscreen' : 'card breathe-card'}>
-      {!fullScreen && <div className="card-ttl">Breathe</div>}
-      {fullScreen && (
-        <p className="breathe-fs-title">Take a breath</p>
-      )}
+      {!fullScreen && <div className="card-ttl">{t.breatheLbl}</div>}
+      {fullScreen && <p className="breathe-fs-title">{t.breatheTitle}</p>}
       <div className="breathe-content">
         <div className={`breathe-stage${fullScreen ? ' breathe-stage-fs' : ''}`}>
-          <div className={`breathe-bubble ${phase}`}>
+          <div
+            className={`breathe-bubble ${phase}`}
+            onClick={toggle}
+            role="button"
+            aria-label={running ? t.breatheStop : t.breatheStart}
+            style={{ cursor: 'pointer' }}
+          >
             <div className="breathe-ring r3" />
             <div className="breathe-ring r2" />
             <div className={`breathe-circle${fullScreen ? ' breathe-circle-fs' : ''}`}>
@@ -71,11 +77,11 @@ export default function Breathe({ onBreathing, onComplete, muted, fullScreen }) 
           </div>
         </div>
         <div className="breathe-footer">
-          {running && <span className="breathe-count">{cyclesLeft} breath{cyclesLeft !== 1 ? 's' : ''} left</span>}
+          {running && <span className="breathe-count">{t.breatheLeft(cyclesLeft)}</span>}
           <button className={`breathe-btn ${running ? 'running' : ''}`} onClick={toggle}>
-            {running ? 'Stop' : 'Start'}
+            {running ? t.breatheStop : t.breatheStart}
           </button>
-          {!running && <span className="breathe-hint">7 cycles · ~1 min</span>}
+          {!running && <span className="breathe-hint">{t.breatheHint}</span>}
         </div>
       </div>
     </div>

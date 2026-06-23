@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
+﻿import { useState, useEffect, useRef, useCallback } from 'react'
 import { animate, stagger, spring, set, remove } from 'animejs'
 import Onboarding from './components/Onboarding'
 import PlantDisplay from './components/PlantDisplay'
@@ -14,9 +14,9 @@ import ForestPreview from './components/ForestPreview'
 import StreakCalendar from './components/StreakCalendar'
 import WeeklyStats from './components/WeeklyStats'
 import { TR, FLAGS, CODES, LANGS } from './translations'
-import { sndHabit, sndWater, sndWaterTap, sndSleep, sndEmoji, sndSave, sndPlant, sndMilestone, sndStreakSave, sndBreathingComplete, startAmbient, stopAmbient } from './audio'
+import { sndHabit, sndWater, sndWaterTap, sndSleep, sndEmoji, sndSave, sndPlant, sndMilestone, sndStreakSave, sndBreathingComplete, startAmbient, stopAmbient, startRain, stopRain } from './audio'
 
-const LANG_NAMES = { en: 'English', es: 'Español', de: 'Deutsch', fr: 'Français' }
+const LANG_NAMES = { en: 'English', es: 'EspaÃ±ol', de: 'Deutsch', fr: 'FranÃ§ais' }
 const SURPRISE_TYPES = ['ladybug', 'rainbow', 'sun']
 
 const SK = 'sprout_data'
@@ -25,11 +25,11 @@ const TODAY = new Date().toISOString().split('T')[0]
 const CF_COLORS = ['#6ccc78', '#ffd166', '#ffb3c6', '#5bc8ee', '#f6b73c', '#a8d8b5', '#ff9ee8']
 const GB_COLORS = ['#7de89a', '#4caf78', '#aaf4b2', '#5ddd7a', '#86efac', '#34d37a', '#a7f3d0']
 const MS_DATA = {
-  3:  { emoji: '🔥', text: '3 Day Streak!',  sub: "You're building something real." },
-  7:  { emoji: '🔥', text: '7 Day Streak!',  sub: 'One whole week — incredible!' },
-  14: { emoji: '🔥', text: '2 Week Streak!', sub: 'Consistency is your superpower.' },
-  21: { emoji: '🔥', text: '21 Day Streak!', sub: 'This is becoming a habit for life.' },
-  30: { emoji: '🔥', text: '30 Day Streak!', sub: 'One whole month. You did it.' },
+  3:  { emoji: 'ðŸ”¥', text: '3 Day Streak!',  sub: "You're building something real." },
+  7:  { emoji: 'ðŸ”¥', text: '7 Day Streak!',  sub: 'One whole week â€” incredible!' },
+  14: { emoji: 'ðŸ”¥', text: '2 Week Streak!', sub: 'Consistency is your superpower.' },
+  21: { emoji: 'ðŸ”¥', text: '21 Day Streak!', sub: 'This is becoming a habit for life.' },
+  30: { emoji: 'ðŸ”¥', text: '30 Day Streak!', sub: 'One whole month. You did it.' },
 }
 
 function recalcHabitStreak(days, today, habitId) {
@@ -103,14 +103,15 @@ function getGreeting(lang, name) {
 
 function getTimeEmoji() {
   const h = new Date().getHours()
-  return h >= 5 && h < 12 ? '🌿' : h >= 12 && h < 18 ? '☀️' : '🌙'
+  return h >= 5 && h < 12 ? 'ðŸŒ¿' : h >= 12 && h < 18 ? 'â˜€ï¸' : 'ðŸŒ™'
 }
 
 function SplitText({ text, emoji }) {
   const commaIdx = text.indexOf(', ')
-  const wordPart = commaIdx !== -1 ? text.slice(0, commaIdx) : text
-  const namePart = commaIdx !== -1 ? text.slice(commaIdx) : ''
-  const chars = [...wordPart]
+  // Include ", " in animated chars so comma stays on the greeting word line
+  const animPart = commaIdx !== -1 ? text.slice(0, commaIdx + 2) : text
+  const namePart = commaIdx !== -1 ? text.slice(commaIdx + 2) : ''
+  const chars = [...animPart]
   return (
     <>
       {chars.map((ch, i) => (
@@ -118,18 +119,18 @@ function SplitText({ text, emoji }) {
           key={i}
           className="split-char"
           style={{
-            animationDelay: `${i * 40}ms`,
+            animationDelay: `${i * 55}ms`,
             display: ch === ' ' ? 'inline' : 'inline-block',
           }}
         >
-          {ch === ' ' ? ' ' : ch}
+          {ch}
         </span>
       ))}
       {namePart && (
         <span
           className="split-char"
           style={{
-            animationDelay: `${chars.length * 40}ms`,
+            animationDelay: `${chars.length * 55}ms`,
             display: 'inline-block',
             whiteSpace: 'nowrap',
           }}
@@ -138,7 +139,7 @@ function SplitText({ text, emoji }) {
       {emoji && (
         <span
           className="split-char"
-          style={{ animationDelay: `${chars.length * 40 + (namePart ? 40 : 20)}ms`, display: 'inline-block' }}
+          style={{ animationDelay: `${(chars.length + namePart.length) * 55}ms`, display: 'inline-block' }}
         >
           {' '}{emoji}
         </span>
@@ -223,8 +224,11 @@ export default function App() {
   })
 
   const [lang, setLang] = useState(() => sproutState.lang || 'en')
-  const [muted, setMuted] = useState(() => sproutState.muted || false)
-  const [ambientOn, setAmbientOn] = useState(() => sproutState.ambientOn || false)
+  const [ambientMode, setAmbientMode] = useState(() => {
+    if (sproutState.ambientMode) return sproutState.ambientMode
+    if (sproutState.ambientOn) return 'forest'
+    return 'off'
+  })
   const [userName, setUserName] = useState(() => {
     try { return localStorage.getItem('sprout_name') || '' } catch (e) { return '' }
   })
@@ -326,7 +330,7 @@ export default function App() {
             onComplete: () => bf.remove(),
           })
 
-          // Wing flutter — scaleX oscillation via anime.js
+          // Wing flutter â€” scaleX oscillation via anime.js
           const wl = bf.querySelector('.wl')
           const wr = bf.querySelector('.wr')
           const flutterPeriod = (280 + Math.random() * 160)
@@ -512,7 +516,7 @@ export default function App() {
       return next
     })
 
-    // Streak flame sticker — only first save of the day
+    // Streak flame sticker â€” only first save of the day
     if (saveStreak >= 1 && !alreadySaved) {
       const msData = MS_DATA[saveStreak] || null
       setTimeout(() => {
@@ -565,7 +569,7 @@ export default function App() {
     setPlantGoldGlow(false)
   }, [])
 
-  // Flame popup — spring entrance + count-up number
+  // Flame popup â€” spring entrance + count-up number
   useEffect(() => {
     const el = flameElRef.current
     if (!el) return
@@ -623,11 +627,15 @@ export default function App() {
     setSproutState(prev => { const next = { ...prev, muted: newVal }; persist(next); return next })
   }
 
-  const handleToggleAmbient = () => {
-    const newVal = !ambientOn
-    setAmbientOn(newVal)
-    if (newVal) startAmbient(); else stopAmbient()
-    setSproutState(prev => { const next = { ...prev, ambientOn: newVal }; persist(next); return next })
+  const handleCycleAmbient = () => {
+    const modes = ['off', 'forest', 'rain']
+    const next = modes[(modes.indexOf(ambientMode) + 1) % 3]
+    setAmbientMode(next)
+    stopAmbient()
+    stopRain()
+    if (next === 'forest') startAmbient()
+    else if (next === 'rain') startRain()
+    setSproutState(prev => { const n = { ...prev, ambientMode: next, ambientOn: next !== 'off' }; persist(n); return n })
   }
 
   const handleSetLang = l => {
@@ -644,6 +652,7 @@ export default function App() {
   if (!userName) return <Onboarding onComplete={handleWelcomeComplete} />
 
   const dateStr = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })
+  const t = TR[lang]
   const greeting = getGreeting(lang, userName)
   const timeEmoji = getTimeEmoji()
 
@@ -652,7 +661,7 @@ export default function App() {
       <ForestBackground />
       <div className={`breathe-night-veil${activeTab === 'breathe' ? ' active' : ''}`} />
 
-      {/* ── HOME TAB ── */}
+      {/* â”€â”€ HOME TAB â”€â”€ */}
       <div className={`tab-pane${activeTab === 'home' ? ' tab-pane-active' : ''}`}>
         <div className="app">
           {/* HEADER */}
@@ -661,8 +670,8 @@ export default function App() {
               <button className="mute-btn" onClick={handleToggleMute} aria-label="Toggle tap sounds">
                 {muted ? '🔇' : '🔔'}
               </button>
-              <button className="mute-btn" onClick={handleToggleAmbient} aria-label="Toggle ambient sound">
-                {ambientOn ? '🎵' : '🍃'}
+              <button className="mute-btn" onClick={handleCycleAmbient} aria-label="Cycle ambient sound">
+                {ambientMode === 'forest' ? '🌳' : ambientMode === 'rain' ? '🌧' : '🍃'}
               </button>
             </div>
             <div className="hdr-left">
@@ -673,7 +682,7 @@ export default function App() {
               <button className="lang-btn" onClick={() => setLangDropOpen(o => !o)}>
                 <span>{FLAGS[lang]}</span>
                 <span>{CODES[lang]}</span>
-                <span style={{ fontSize: 9, opacity: 0.5, marginLeft: 1 }}>▾</span>
+                <span style={{ fontSize: 9, opacity: 0.5, marginLeft: 1 }}>â–¾</span>
               </button>
               <div className={`lang-drop ${langDropOpen ? 'open' : ''}`}>
                 {LANGS.map(l => (
@@ -736,7 +745,7 @@ export default function App() {
         </div>
       </div>
 
-      {/* ── BREATHE TAB ── always mounted so timer survives tab switches */}
+      {/* â”€â”€ BREATHE TAB â”€â”€ always mounted so timer survives tab switches */}
       <div className={`tab-pane breathe-tab-pane${activeTab === 'breathe' ? ' tab-pane-active' : ''}`}>
         <StarfieldBackground />
         <div className="breathe-tab-full">
@@ -744,8 +753,8 @@ export default function App() {
             <button className="mute-btn" onClick={handleToggleMute} aria-label="Toggle sounds">
               {muted ? '🔇' : '🔔'}
             </button>
-            <button className="mute-btn" onClick={handleToggleAmbient} aria-label="Toggle ambient">
-              {ambientOn ? '🎵' : '🍃'}
+            <button className="mute-btn" onClick={handleCycleAmbient} aria-label="Cycle ambient">
+              {ambientMode === 'forest' ? '🌳' : ambientMode === 'rain' ? '🌧' : '🍃'}
             </button>
           </div>
           <Breathe
@@ -753,53 +762,48 @@ export default function App() {
             onBreathing={setIsBreathing}
             onComplete={handleBreatheComplete}
             muted={muted}
+            lang={lang}
           />
         </div>
       </div>
 
-      {/* ── GROWTH TAB ── */}
+      {/* â”€â”€ GROWTH TAB â”€â”€ */}
       <div className={`tab-pane${activeTab === 'growth' ? ' tab-pane-active' : ''}`}>
         <div className="app">
-          <div className="growth-hdr">
-            <h2 className="growth-title">Your Growth 🌿</h2>
-            <p className="growth-sub">{dateStr}</p>
-          </div>
-          <StreakCalendar days={sproutState.days} />
-          <WeeklyStats days={sproutState.days} habits={habits} />
-          <MoodHistory />
-          <ForestPreview />
+          <h2 className="growth-title">{t.growthTitle}</h2>
+          <StreakCalendar days={sproutState.days} lang={lang} />
+          <WeeklyStats days={sproutState.days} habits={habits} lang={lang} />
+          <MoodHistory lang={lang} />
+          <ForestPreview lang={lang} />
         </div>
       </div>
 
-      {/* ── BOTTOM TAB BAR ── */}
+      {/* â”€â”€ BOTTOM TAB BAR â”€â”€ */}
       <nav className="tab-bar">
         <button
           className={`tab-btn${activeTab === 'home' ? ' active' : ''}`}
           onClick={() => setActiveTab('home')}
           aria-label="Home"
         >
-          <span className="tab-icon"><IconHome active={activeTab === 'home'} /></span>
-          <span className="tab-lbl">Home</span>
+          <span className="tab-lbl">{t.tabHome}</span>
         </button>
         <button
           className={`tab-btn${activeTab === 'breathe' ? ' active' : ''}`}
           onClick={() => setActiveTab('breathe')}
           aria-label="Breathe"
         >
-          <span className="tab-icon"><IconBreathe active={activeTab === 'breathe'} /></span>
-          <span className="tab-lbl">Breathe</span>
+          <span className="tab-lbl">{t.tabBreathe}</span>
         </button>
         <button
           className={`tab-btn${activeTab === 'growth' ? ' active' : ''}`}
           onClick={() => setActiveTab('growth')}
           aria-label="Growth"
         >
-          <span className="tab-icon"><IconGrowth active={activeTab === 'growth'} /></span>
-          <span className="tab-lbl">Growth</span>
+          <span className="tab-lbl">{t.tabGrowth}</span>
         </button>
       </nav>
 
-      {/* ── CONFETTI ── */}
+      {/* â”€â”€ CONFETTI â”€â”€ */}
       <div className="confetti-wrap">
         {confettiItems.map(item => (
           <div
@@ -819,7 +823,7 @@ export default function App() {
         ))}
       </div>
 
-      {/* ── GREEN BURST ── */}
+      {/* â”€â”€ GREEN BURST â”€â”€ */}
       <div className="gb-wrap">
         {greenBurstItems.map(item => (
           <div
@@ -841,10 +845,10 @@ export default function App() {
         ))}
       </div>
 
-      {/* ── BUTTERFLIES ── */}
+      {/* â”€â”€ BUTTERFLIES â”€â”€ */}
       <div className="butterfly-stage" ref={bfStageRef} />
 
-      {/* ── HABIT MILESTONE OVERLAY ── */}
+      {/* â”€â”€ HABIT MILESTONE OVERLAY â”€â”€ */}
       <div className={`milestone-ov ${milestoneShow ? 'show' : ''}`}>
         <div className="milestone-inner">
           <div className="milestone-emoji">{milestone?.emoji}</div>
@@ -853,15 +857,15 @@ export default function App() {
         </div>
       </div>
 
-      {/* ── STREAK FLAME STICKER ── anime.js drives opacity/transform */}
+      {/* â”€â”€ STREAK FLAME STICKER â”€â”€ anime.js drives opacity/transform */}
       <div className="sf-float-wrap">
         <div className="streak-flame-float" ref={flameElRef} style={{ opacity: 0 }}>
-          <div className="sf-flame-only">🔥</div>
+          <div className="sf-flame-only">ðŸ”¥</div>
           <div className="sf-count-only">{displayCount} day streak</div>
         </div>
       </div>
 
-      {/* ── BREATHING COMPLETION OVERLAY ── */}
+      {/* â”€â”€ BREATHING COMPLETION OVERLAY â”€â”€ */}
       {breatheShow && (
         <div className="breathe-complete-ov" onClick={dismissBreathe}>
           <div className="bc-particles">
@@ -880,13 +884,13 @@ export default function App() {
             ))}
           </div>
           <div className="bc-msg">
-            <div className="bc-text">Well done 🌿</div>
+            <div className="bc-text">Well done ðŸŒ¿</div>
             <div className="bc-sub">You took a moment for yourself</div>
           </div>
         </div>
       )}
 
-      {/* ── TOAST ── */}
+      {/* â”€â”€ TOAST â”€â”€ */}
       <div className={`toast ${toastShow ? 'show' : ''}`}>{toastMsg}</div>
     </>
   )

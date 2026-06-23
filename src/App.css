@@ -826,6 +826,7 @@ body{
 .breathe-bubble{
   position:relative;width:190px;height:190px;
   display:flex;align-items:center;justify-content:center;
+  cursor:pointer;
 }
 .breathe-ring{
   position:absolute;border-radius:50%;

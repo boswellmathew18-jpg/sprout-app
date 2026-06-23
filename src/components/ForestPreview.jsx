@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { TR } from '../translations'
 
 const TREES = [
   { cx: 55,  gy: 148, sc: 0.80, col: '#1c5022' },
@@ -58,13 +59,14 @@ function ForestPlaceholder() {
   )
 }
 
-export default function ForestPreview() {
+export default function ForestPreview({ lang }) {
+  const t = TR[lang] || TR['en']
   const [open, setOpen] = useState(false)
 
   return (
     <>
       <button className="fp-trigger" onClick={() => setOpen(true)}>
-        🌲 Your Forest
+        {t.forestTrigger}
       </button>
 
       {open && (
@@ -73,14 +75,12 @@ export default function ForestPreview() {
             <button className="fp-x" onClick={() => setOpen(false)}>✕</button>
             <div className="fp-forest-wrap">
               <ForestPlaceholder />
-              <div className="fp-grow-label">🌱 Your forest is growing...</div>
+              <div className="fp-grow-label">{t.forestGrowing}</div>
               <div className="fp-veil" />
             </div>
             <div className="fp-lock">
-              <div className="fp-lock-title">🌲 Coming Soon</div>
-              <div className="fp-lock-sub">
-                Your personal forest is growing in the background. Every streak day plants a new tree. Premium drops soon.
-              </div>
+              <div className="fp-lock-title">{t.forestSoon}</div>
+              <div className="fp-lock-sub">{t.forestSub}</div>
             </div>
           </div>
         </div>

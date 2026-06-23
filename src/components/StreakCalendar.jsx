@@ -1,6 +1,10 @@
+import { TR } from '../translations'
+
 const TODAY = new Date().toISOString().split('T')[0]
 
-export default function StreakCalendar({ days }) {
+export default function StreakCalendar({ days, lang }) {
+  const t = TR[lang] || TR['en']
+
   const cells = []
   for (let i = 29; i >= 0; i--) {
     const d = new Date()
@@ -21,9 +25,9 @@ export default function StreakCalendar({ days }) {
 
   return (
     <div className="card">
-      <div className="card-ttl">30-Day Streak</div>
+      <div className="card-ttl">{t.calTtl}</div>
       {streak > 0 && (
-        <div className="cal-streak-badge">🔥 {streak} day streak</div>
+        <div className="cal-streak-badge">{t.calStreak(streak)}</div>
       )}
       <div className="streak-cal">
         {cells.map(cell => (
@@ -34,9 +38,9 @@ export default function StreakCalendar({ days }) {
         ))}
       </div>
       <div className="cal-legend">
-        <span className="cal-leg-item"><span className="cal-leg-dot done" />Completed</span>
-        <span className="cal-leg-item"><span className="cal-leg-dot today" />Today</span>
-        <span className="cal-leg-item"><span className="cal-leg-dot" />Missed</span>
+        <span className="cal-leg-item"><span className="cal-leg-dot done" />{t.calDone}</span>
+        <span className="cal-leg-item"><span className="cal-leg-dot today" />{t.calToday}</span>
+        <span className="cal-leg-item"><span className="cal-leg-dot" />{t.calMissed}</span>
       </div>
     </div>
   )
