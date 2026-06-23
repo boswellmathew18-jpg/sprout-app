@@ -302,38 +302,30 @@ export default function App() {
     if (!userName) return
     const spawnBF = () => {
       const stage = bfStageRef.current
-      if (!stage) return
-      if (stage.querySelectorAll('.bf-body').length >= 2) return
+      if (!stage || stage.querySelectorAll('.bf-body').length >= 2) return
       const bf = makeBF()
       stage.appendChild(bf)
-
       const vw = window.innerWidth
       const vh = window.innerHeight
-      const sy = (0.20 + Math.random() * 0.34) * vh
-      const dip = (Math.random() > 0.5 ? 1 : -1) * (18 + Math.random() * 30)
-      const totalDur = (32 + Math.random() * 18) * 1000
-
+      const y   = (0.25 + Math.random() * 0.40) * vh
+      const dip = (Math.random() > 0.5 ? 1 : -1) * (15 + Math.random() * 20)
       animate(bf, {
         keyframes: [
-          { translateX: -70, translateY: sy, opacity: 0 },
-          { translateX: vw * 0.12, translateY: sy - dip * 0.9, opacity: 0.9 },
-          { translateX: vw * 0.32, translateY: sy + dip * 0.5 },
-          { translateX: vw * 0.55, translateY: sy - dip * 0.7 },
-          { translateX: vw * 0.78, translateY: sy + dip * 0.4 },
-          { translateX: vw + 70,  translateY: sy, opacity: 0 },
+          { translateX: -80, translateY: y,       opacity: 0 },
+          { translateX: vw * 0.30, translateY: y + dip, opacity: 1 },
+          { translateX: vw * 0.70, translateY: y - dip, opacity: 1 },
+          { translateX: vw + 80,  translateY: y,       opacity: 0 },
         ],
-        duration: totalDur,
+        duration: 38000 + Math.random() * 10000,
         ease: 'inOutSine',
-        onComplete: () => bf.remove(),
+        onComplete: () => { try { bf.remove() } catch (e) {} },
       })
-
       const wl = bf.querySelector('.wl')
       const wr = bf.querySelector('.wr')
-      const flutterPeriod = 440 + Math.random() * 220
-      if (wl) animate(wl, { scaleX: [1, 0.18, 1], duration: flutterPeriod, loop: Infinity, ease: 'inOutSine' })
-      if (wr) animate(wr, { scaleX: [1, 0.18, 1], duration: flutterPeriod, loop: Infinity, ease: 'inOutSine' })
+      if (wl) animate(wl, { scaleX: [1, 0.15, 1], duration: 500, loop: Infinity, ease: 'inOutSine' })
+      if (wr) animate(wr, { scaleX: [1, 0.15, 1], duration: 500, loop: Infinity, ease: 'inOutSine' })
     }
-    const id = setInterval(spawnBF, 20000)
+    const id = setInterval(spawnBF, 25000)
     return () => clearInterval(id)
   }, [userName, score])
 
