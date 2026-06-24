@@ -15,7 +15,7 @@ import ForestPreview from './components/ForestPreview'
 import StreakCalendar from './components/StreakCalendar'
 import WeeklyStats from './components/WeeklyStats'
 import { TR, FLAGS, CODES, LANGS } from './translations'
-import { sndHabit, sndWater, sndWaterTap, sndSleep, sndEmoji, sndSave, sndPlant, sndMilestone, sndStreakSave, sndBreathingComplete, startAmbient, stopAmbient, startRain, stopRain } from './audio'
+import { sndHabit, sndWater, sndWaterTap, sndSleep, sndEmoji, sndSave, sndPlant, sndMilestone, sndStreakSave, sndBreathingComplete } from './audio'
 
 const LANG_NAMES = { en: 'English', es: 'Español', de: 'Deutsch', fr: 'Français' }
 const SURPRISE_TYPES = ['ladybug', 'rainbow', 'sun']
@@ -71,7 +71,6 @@ function migrateState(parsed) {
       days: newDays,
       lang: parsed.lang || 'en',
       muted: parsed.muted || false,
-      ambientOn: parsed.ambientOn || false,
     }
   }
   if (!Array.isArray(parsed.habits)) parsed.habits = []
@@ -83,7 +82,7 @@ function getInitialState() {
     const r = localStorage.getItem(SK)
     if (r) return migrateState(JSON.parse(r))
   } catch (e) {}
-  return { habits: [], days: {}, lang: 'en', muted: false, ambientOn: false }
+  return { habits: [], days: {}, lang: 'en', muted: false }
 }
 
 function saveHistory(date, mood, note) {
@@ -189,11 +188,6 @@ export default function App() {
   })
 
   const [lang, setLang] = useState(() => sproutState.lang || 'en')
-  const [ambientMode, setAmbientMode] = useState(() => {
-    if (sproutState.ambientMode) return sproutState.ambientMode
-    if (sproutState.ambientOn) return 'forest'
-    return 'off'
-  })
   const [userName, setUserName] = useState(() => {
     try { return localStorage.getItem('sprout_name') || '' } catch (e) { return '' }
   })
@@ -547,16 +541,6 @@ export default function App() {
     setSproutState(prev => { const next = { ...prev, muted: newVal }; persist(next); return next })
   }
 
-  const handleCycleAmbient = () => {
-    const modes = ['off', 'forest', 'rain']
-    const next = modes[(modes.indexOf(ambientMode) + 1) % 3]
-    setAmbientMode(next)
-    stopAmbient()
-    stopRain()
-    if (next === 'forest') startAmbient()
-    else if (next === 'rain') startRain()
-    setSproutState(prev => { const n = { ...prev, ambientMode: next, ambientOn: next !== 'off' }; persist(n); return n })
-  }
 
   const handleSetLang = l => {
     setLang(l)
@@ -589,9 +573,6 @@ export default function App() {
             <div className="hdr-icons">
               <button className="mute-btn" onClick={handleToggleMute} aria-label="Toggle tap sounds">
                 {muted ? '🔇' : '🔔'}
-              </button>
-              <button className="mute-btn" onClick={handleCycleAmbient} aria-label="Cycle ambient sound">
-                {ambientMode === 'forest' ? '🌳' : ambientMode === 'rain' ? '🌧' : '🍃'}
               </button>
             </div>
             <div className="hdr-left">
@@ -672,9 +653,6 @@ export default function App() {
           <div className="breathe-tab-controls">
             <button className="mute-btn" onClick={handleToggleMute} aria-label="Toggle sounds">
               {muted ? '🔇' : '🔔'}
-            </button>
-            <button className="mute-btn" onClick={handleCycleAmbient} aria-label="Cycle ambient">
-              {ambientMode === 'forest' ? '🌳' : ambientMode === 'rain' ? '🌧' : '🍃'}
             </button>
           </div>
           <Breathe
