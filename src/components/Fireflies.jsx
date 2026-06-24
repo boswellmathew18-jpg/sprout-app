@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react'
 import { animate, set } from 'animejs'
 
 const COLORS = ['#ff9eb5', '#9ec8ff', '#ffe566', '#90ee90', '#ffb347', '#c9a0ff']
-const COUNT = 14
+const COUNT = 3
 
 // Deterministic config per firefly — avoids random values in render
 const CONFIG = Array.from({ length: COUNT }, (_, i) => ({
