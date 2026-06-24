@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { TR } from '../translations'
-import { sndBreatheInhale, sndBreatheExhale, stopBreatheSound, sndBreatheTap } from '../audio'
+import { sndBreatheTap } from '../audio'
 
 const TOTAL_CYCLES = 7
 const PHASE_MS = 4000
@@ -39,13 +39,6 @@ export default function Breathe({ onBreathing, onComplete, muted, fullScreen, la
     onBreathing?.(true)
     return () => clearTimeout(timerRef.current)
   }, [running]) // eslint-disable-line react-hooks/exhaustive-deps
-
-  useEffect(() => {
-    if (muted || phase === 'idle') { stopBreatheSound(); return }
-    if (phase === 'inhale') sndBreatheInhale()
-    else if (phase === 'exhale') sndBreatheExhale()
-    return stopBreatheSound
-  }, [phase, muted])
 
   const toggle = () => {
     if (!muted) sndBreatheTap()
