@@ -33,7 +33,7 @@ export default function Onboarding({ onComplete }) {
     const v = name.trim()
     if (!v) return
     const formatted = v.charAt(0).toUpperCase() + v.slice(1)
-    const alreadyAnswered = localStorage.getItem('sprout_notif')
+    const alreadyAnswered = localStorage.getItem('grove_notif')
     const canPrompt = 'Notification' in window && Notification.permission === 'default' && !alreadyAnswered
     if (!canPrompt) {
       onComplete(formatted)
@@ -47,16 +47,16 @@ export default function Onboarding({ onComplete }) {
     try {
       if ('Notification' in window) {
         const perm = await Notification.requestPermission()
-        localStorage.setItem('sprout_notif', perm)
+        localStorage.setItem('grove_notif', perm)
       }
     } catch {
-      localStorage.setItem('sprout_notif', 'denied')
+      localStorage.setItem('grove_notif', 'denied')
     }
     onComplete(pendingName)
   }
 
   const handleNotifSkip = () => {
-    localStorage.setItem('sprout_notif', 'skipped')
+    localStorage.setItem('grove_notif', 'skipped')
     onComplete(pendingName)
   }
 
@@ -72,7 +72,7 @@ export default function Onboarding({ onComplete }) {
             <div className="ob-plant">
               <PlantSvg score={2} week={1} />
             </div>
-            <h1 className="ob-title">Welcome to Sprout</h1>
+            <h1 className="ob-title">Welcome to Grove</h1>
             <p className="ob-sub">Your daily wellness companion</p>
             <button className="ob-btn" onClick={() => goTo(1)}>Get Started →</button>
           </div>
@@ -129,7 +129,7 @@ export default function Onboarding({ onComplete }) {
           <div className="notif-card">
             <div className="notif-icon">🔔</div>
             <h3 className="notif-title">Daily reminders?</h3>
-            <p className="notif-sub">Let Sprout nudge you each day to check in and keep your streak alive.</p>
+            <p className="notif-sub">Let Grove nudge you each day to check in and keep your streak alive.</p>
             <button className="notif-btn-yes" onClick={handleNotifYes}>Yes, remind me</button>
             <button className="notif-btn-skip" onClick={handleNotifSkip}>Maybe later</button>
           </div>

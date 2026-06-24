@@ -20,8 +20,22 @@ import { sndHabit, sndWater, sndWaterTap, sndSleep, sndEmoji, sndSave, sndPlant,
 const LANG_NAMES = { en: 'English', es: 'Español', de: 'Deutsch', fr: 'Français' }
 const SURPRISE_TYPES = ['ladybug', 'rainbow', 'sun']
 
-const SK = 'sprout_data'
-const HISTORY_SK = 'sprout_history'
+// One-time migration: copy sprout_ localStorage data to grove_ namespace
+;(function () {
+  try {
+    ;[['sprout_data', 'grove_data'], ['sprout_history', 'grove_history'],
+      ['sprout_name', 'grove_name'], ['sprout_notif', 'grove_notif']
+    ].forEach(([o, n]) => {
+      if (!localStorage.getItem(n)) {
+        const v = localStorage.getItem(o)
+        if (v !== null) localStorage.setItem(n, v)
+      }
+    })
+  } catch (e) {}
+})()
+
+const SK = 'grove_data'
+const HISTORY_SK = 'grove_history'
 const TODAY = new Date().toISOString().split('T')[0]
 const CF_COLORS = ['#6ccc78', '#ffd166', '#ffb3c6', '#5bc8ee', '#f6b73c', '#a8d8b5', '#ff9ee8']
 const GB_COLORS = ['#7de89a', '#4caf78', '#aaf4b2', '#5ddd7a', '#86efac', '#34d37a', '#a7f3d0']
@@ -98,7 +112,7 @@ function getGreeting(lang, name) {
   const h = new Date().getHours()
   const word = h >= 5 && h < 12 ? t.greetMorn : h >= 12 && h < 18 ? t.greetAftn : t.greetEvn
   const displayName = name ? name.charAt(0).toUpperCase() + name.slice(1) : ''
-  return displayName ? `${word}, ${displayName}` : 'Sprout'
+  return displayName ? `${word}, ${displayName}` : 'Grove'
 }
 
 function getTimeEmoji() {
@@ -189,7 +203,7 @@ export default function App() {
 
   const [lang, setLang] = useState(() => sproutState.lang || 'en')
   const [userName, setUserName] = useState(() => {
-    try { return localStorage.getItem('sprout_name') || '' } catch (e) { return '' }
+    try { return localStorage.getItem('grove_name') || '' } catch (e) { return '' }
   })
   const [isBreathing, setIsBreathing] = useState(false)
   const [activeTab, setActiveTab] = useState('home')
@@ -549,7 +563,7 @@ export default function App() {
   }
 
   const handleWelcomeComplete = name => {
-    try { localStorage.setItem('sprout_name', name) } catch (e) {}
+    try { localStorage.setItem('grove_name', name) } catch (e) {}
     setUserName(name)
   }
 

@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react'
 import { TR } from '../translations'
 
-const HISTORY_SK = 'sprout_history'
+const HISTORY_SK = 'grove_history'
 const EMOJIS = { 1: '😞', 2: '😕', 3: '😐', 4: '🙂', 5: '😄' }
 
 function readHistory() {
