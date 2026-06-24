@@ -153,33 +153,19 @@ function makeBF() {
   outer.className = 'bf-body'
   const inner = document.createElement('div')
   inner.className = 'bf-inner'
-  const palettes = [
-    { w: 'rgba(150,170,255,0.48)', h: 'rgba(200,215,255,0.28)', body: 'rgba(120,100,200,0.60)', dot: 'rgba(230,235,255,0.85)' },
-    { w: 'rgba(190,155,255,0.45)', h: 'rgba(220,200,255,0.28)', body: 'rgba(160,100,220,0.55)', dot: 'rgba(240,235,255,0.85)' },
-    { w: 'rgba(140,205,240,0.43)', h: 'rgba(185,225,255,0.28)', body: 'rgba(80,145,210,0.55)',  dot: 'rgba(210,240,255,0.85)' },
-  ]
-  const p = palettes[Math.floor(Math.random() * palettes.length)]
-  inner.innerHTML = `<svg width="56" height="48" viewBox="-55 -48 110 85" style="overflow:visible">
+  const fill  = 'rgba(140,100,200,0.55)'
+  const fill2 = 'rgba(140,100,200,0.38)'
+  const body  = 'rgba(140,100,200,0.82)'
+  inner.innerHTML = `<svg width="52" height="44" viewBox="-26 -22 52 44" style="overflow:visible">
     <g class="wl">
-      <path d="M 0,2 C -5,-4 -30,-42 -44,-30 C -50,-18 -30,-1 0,13" fill="${p.w}"/>
-      <path d="M 0,6 C -6,0 -24,-30 -36,-22 C -40,-14 -26,0 0,10" fill="${p.h}" opacity="0.70"/>
-      <circle cx="-40" cy="-26" r="2.4" fill="${p.dot}" opacity="0.75"/>
-      <path d="M 0,12 C -10,10 -38,13 -40,28 C -38,39 -14,35 0,27" fill="${p.w}"/>
-      <path d="M 0,16 C -8,14 -30,17 -32,27 C -30,34 -12,31 0,24" fill="${p.h}" opacity="0.60"/>
+      <ellipse cx="-12" cy="-6" rx="14" ry="7"   transform="rotate(-30,-12,-6)" fill="${fill}"/>
+      <ellipse cx="-10" cy="8"  rx="11" ry="5.5"  transform="rotate(30,-10,8)"  fill="${fill2}"/>
     </g>
     <g class="wr">
-      <path d="M 0,2 C 5,-4 30,-42 44,-30 C 50,-18 30,-1 0,13" fill="${p.w}"/>
-      <path d="M 0,6 C 6,0 24,-30 36,-22 C 40,-14 26,0 0,10" fill="${p.h}" opacity="0.70"/>
-      <circle cx="40" cy="-26" r="2.4" fill="${p.dot}" opacity="0.75"/>
-      <path d="M 0,12 C 10,10 38,13 40,28 C 38,39 14,35 0,27" fill="${p.w}"/>
-      <path d="M 0,16 C 8,14 30,17 32,27 C 30,34 12,31 0,24" fill="${p.h}" opacity="0.60"/>
+      <ellipse cx="12"  cy="-6" rx="14" ry="7"   transform="rotate(30,12,-6)"   fill="${fill}"/>
+      <ellipse cx="10"  cy="8"  rx="11" ry="5.5"  transform="rotate(-30,10,8)"  fill="${fill2}"/>
     </g>
-    <ellipse cx="0" cy="12" rx="2.2" ry="12" fill="${p.body}"/>
-    <circle cx="0" cy="-2" r="2.6" fill="${p.body}"/>
-    <path d="M -1,-4 Q -7,-16 -8,-23" stroke="${p.body}" stroke-width="0.9" fill="none" stroke-linecap="round"/>
-    <path d="M 1,-4 Q 7,-16 8,-23" stroke="${p.body}" stroke-width="0.9" fill="none" stroke-linecap="round"/>
-    <circle cx="-8" cy="-23" r="1.8" fill="${p.dot}" opacity="0.80"/>
-    <circle cx="8" cy="-23" r="1.8" fill="${p.dot}" opacity="0.80"/>
+    <circle cx="0" cy="0" r="4" fill="${body}"/>
   </svg>`
   outer.appendChild(inner)
   return outer

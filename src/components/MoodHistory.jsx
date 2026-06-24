@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react'
 import { TR } from '../translations'
 
 const HISTORY_SK = 'sprout_history'
-const EMOJIS = { 1: '😞', 2: '😐', 3: '🙂', 4: '😊', 5: '😄' }
+const EMOJIS = { 1: '😞', 2: '😕', 3: '😐', 4: '🙂', 5: '😄' }
 
 function readHistory() {
   try { return JSON.parse(localStorage.getItem(HISTORY_SK) || '{}') } catch { return {} }
@@ -51,10 +51,10 @@ export default function MoodHistory({ lang }) {
               <div className="hist-list">
                 {entries.map(e => (
                   <div key={e.date} className="hist-row">
-                    <div className="hist-emoji">{EMOJIS[e.mood] || '·'}</div>
+                    <div className="hist-emoji">{EMOJIS[e.mood] || '—'}</div>
                     <div className="hist-info">
                       <div className="hist-date">{fmtDate(e.date)}</div>
-                      {e.note && <div className="hist-note">{e.note}</div>}
+                      <div className="hist-note" style={e.note ? {} : {opacity:0.3}}>{e.note || 'No note'}</div>
                     </div>
                   </div>
                 ))}

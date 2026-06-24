@@ -103,7 +103,7 @@ export default function PlantDisplay({ score, week, lang, onTap, surprise, isBre
       </div>
       <PlantSvg score={score} week={week} onTap={onTap} isBreathing={isBreathing} goldGlow={goldGlow} />
       <div className="plant-lbl">{t.pLbl[score]}</div>
-      <div className="week-badge">Week {week}</div>
+      <div className="week-badge">{'Week ' + week}</div>
       <div className="surprise-container">
         {surprise === 'ladybug' && <LadybugSvg />}
         {surprise === 'rainbow' && <RainbowSvg />}
