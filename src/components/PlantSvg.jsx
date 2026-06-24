@@ -72,8 +72,7 @@ export default function PlantSvg({ score = 2, week = 1, onTap, isBreathing = fal
     >
       <div style={{
         position: 'relative',
-        width: '160px',
-        margin: '0 auto',
+        width: '280px',
         transform: `scale(${weekScale})`,
         transformOrigin: 'center bottom',
         lineHeight: 0,
@@ -90,7 +89,7 @@ export default function PlantSvg({ score = 2, week = 1, onTap, isBreathing = fal
         <svg
           style={{
             position: 'absolute',
-            top: '42%',
+            top: '52%',
             left: '50%',
             transform: 'translateX(-50%)',
             width: '60%',
@@ -148,30 +147,6 @@ export default function PlantSvg({ score = 2, week = 1, onTap, isBreathing = fal
           </div>
         )}
 
-        {/* Pot — same design as original, label updated to Grove */}
-        <svg
-          viewBox="0 0 160 45"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          style={{ display: 'block', width: '100%' }}
-        >
-          <rect x="47" y="2" width="66" height="9.5" rx="4.8" fill="#ae6e48" />
-          <path d="M53 11.5 Q51 35 80 40 Q109 35 107 11.5 Z" fill="#d49068" />
-          <path d="M53 11.5 Q51 35 67 39 L65 11.5 Z" fill="rgba(0,0,0,0.07)" />
-          <ellipse cx="69" cy="20" rx="5" ry="10" transform="rotate(-8 69 20)" fill="rgba(255,255,255,0.14)" />
-          <ellipse cx="80" cy="2" rx="29" ry="5" fill="#7a4f2a" opacity="0.26" />
-          <rect x="60" y="25" width="40" height="13.5" rx="4.5" fill="white" opacity="0.92" />
-          <text
-            x="80" y="36"
-            textAnchor="middle"
-            fontSize="8.5"
-            fill="#ae6e48"
-            fontWeight="800"
-            fontFamily="-apple-system,'Helvetica Neue',sans-serif"
-          >
-            Grove
-          </text>
-        </svg>
 
       </div>
 
