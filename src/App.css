@@ -612,12 +612,9 @@ body{
   100%{transform:translateY(108vh) rotate(560deg) scale(0.6);opacity:0}
 }
 
-/* ── BUTTERFLY ── anime.js handles path + wing flutter */
-.butterfly-stage{position:fixed;inset:0;pointer-events:none;z-index:60;overflow:hidden}
-.bf-body{position:absolute;top:0;left:0;will-change:transform,opacity}
-.bf-inner{display:block}
-.wl{transform-box:fill-box;transform-origin:right center}
-.wr{transform-box:fill-box;transform-origin:left center}
+/* ── FIREFLIES ── */
+.firefly-stage{position:fixed;inset:0;pointer-events:none;z-index:2;overflow:hidden}
+.firefly{position:absolute;border-radius:50%;will-change:transform,opacity}
 
 /* ── MILESTONE OVERLAY ── */
 .milestone-ov{

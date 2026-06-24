@@ -10,6 +10,7 @@ import ForestBackground from './components/ForestBackground'
 import StarfieldBackground from './components/StarfieldBackground'
 import Breathe from './components/Breathe'
 import MoodHistory from './components/MoodHistory'
+import Fireflies from './components/Fireflies'
 import ForestPreview from './components/ForestPreview'
 import StreakCalendar from './components/StreakCalendar'
 import WeeklyStats from './components/WeeklyStats'
@@ -148,28 +149,6 @@ function SplitText({ text, emoji }) {
   )
 }
 
-function makeBF() {
-  const outer = document.createElement('div')
-  outer.className = 'bf-body'
-  const inner = document.createElement('div')
-  inner.className = 'bf-inner'
-  const fill  = 'rgba(140,100,200,0.55)'
-  const fill2 = 'rgba(140,100,200,0.38)'
-  const body  = 'rgba(140,100,200,0.82)'
-  inner.innerHTML = `<svg width="52" height="44" viewBox="-26 -22 52 44" style="overflow:visible">
-    <g class="wl">
-      <ellipse cx="-12" cy="-6" rx="14" ry="7"   transform="rotate(-30,-12,-6)" fill="${fill}"/>
-      <ellipse cx="-10" cy="8"  rx="11" ry="5.5"  transform="rotate(30,-10,8)"  fill="${fill2}"/>
-    </g>
-    <g class="wr">
-      <ellipse cx="12"  cy="-6" rx="14" ry="7"   transform="rotate(30,12,-6)"   fill="${fill}"/>
-      <ellipse cx="10"  cy="8"  rx="11" ry="5.5"  transform="rotate(-30,10,8)"  fill="${fill2}"/>
-    </g>
-    <circle cx="0" cy="0" r="4" fill="${body}"/>
-  </svg>`
-  outer.appendChild(inner)
-  return outer
-}
 
 // Tab bar SVG icons
 function IconHome({ active }) {
@@ -244,7 +223,6 @@ export default function App() {
   const [plantGoldGlow, setPlantGoldGlow] = useState(false)
   const breatheTimerRef = useRef(null)
 
-  const bfStageRef = useRef(null)
   const langWrapRef = useRef(null)
 
   const td = sproutState.days[TODAY] || { habits: {}, water: 0, sleep: null, mood: null, note: '' }
@@ -285,36 +263,6 @@ export default function App() {
     return () => document.removeEventListener('click', handler)
   }, [])
 
-  useEffect(() => {
-    if (!userName) return
-    const spawnBF = () => {
-      const stage = bfStageRef.current
-      if (!stage || stage.querySelectorAll('.bf-body').length >= 2) return
-      const bf = makeBF()
-      stage.appendChild(bf)
-      const vw = window.innerWidth
-      const vh = window.innerHeight
-      const y   = (0.25 + Math.random() * 0.40) * vh
-      const dip = (Math.random() > 0.5 ? 1 : -1) * (15 + Math.random() * 20)
-      animate(bf, {
-        keyframes: [
-          { translateX: -80, translateY: y,       opacity: 0 },
-          { translateX: vw * 0.30, translateY: y + dip, opacity: 1 },
-          { translateX: vw * 0.70, translateY: y - dip, opacity: 1 },
-          { translateX: vw + 80,  translateY: y,       opacity: 0 },
-        ],
-        duration: 38000 + Math.random() * 10000,
-        ease: 'inOutSine',
-        onComplete: () => { try { bf.remove() } catch (e) {} },
-      })
-      const wl = bf.querySelector('.wl')
-      const wr = bf.querySelector('.wr')
-      if (wl) animate(wl, { scaleX: [1, 0.15, 1], duration: 500, loop: Infinity, ease: 'inOutSine' })
-      if (wr) animate(wr, { scaleX: [1, 0.15, 1], duration: 500, loop: Infinity, ease: 'inOutSine' })
-    }
-    const id = setInterval(spawnBF, 25000)
-    return () => clearInterval(id)
-  }, [userName, score])
 
   const persist = useCallback(newState => {
     try { localStorage.setItem(SK, JSON.stringify(newState)) } catch (e) {}
@@ -817,8 +765,8 @@ export default function App() {
         ))}
       </div>
 
-      {/* ── BUTTERFLIES ── */}
-      <div className="butterfly-stage" ref={bfStageRef} />
+      {/* ── FIREFLIES ── */}
+      <Fireflies />
 
       {/* ── HABIT MILESTONE OVERLAY ── */}
       <div className={`milestone-ov ${milestoneShow ? 'show' : ''}`}>
