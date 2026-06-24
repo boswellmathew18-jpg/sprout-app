@@ -62,6 +62,12 @@ export const sndBreathingComplete = () => {
   c(1174, 1050)
 }
 
+export const sndBreatheTap = () => {
+  tone(523, 0.10, 0.08, 'sine')
+  setTimeout(() => tone(660, 0.10, 0.07, 'sine'), 55)
+  setTimeout(() => tone(784, 0.14, 0.07, 'sine'), 110)
+}
+
 // ── BREATHING GUIDE TONES ──
 // One active breath tone at a time; stopped before each new phase starts.
 

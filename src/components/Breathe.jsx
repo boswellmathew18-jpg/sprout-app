@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { TR } from '../translations'
-import { sndBreatheInhale, sndBreatheExhale, stopBreatheSound } from '../audio'
+import { sndBreatheInhale, sndBreatheExhale, stopBreatheSound, sndBreatheTap } from '../audio'
 
 const TOTAL_CYCLES = 7
 const PHASE_MS = 4000
@@ -48,6 +48,7 @@ export default function Breathe({ onBreathing, onComplete, muted, fullScreen, la
   }, [phase, muted])
 
   const toggle = () => {
+    if (!muted) sndBreatheTap()
     if (running) {
       clearTimeout(timerRef.current)
       setRunning(false)
