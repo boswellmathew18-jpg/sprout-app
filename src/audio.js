@@ -61,3 +61,47 @@ export const sndBreathingComplete = () => {
   c(1047, 750)
   c(1174, 1050)
 }
+
+// ── BREATHING GUIDE TONES ──
+// One active breath tone at a time; stopped before each new phase starts.
+
+let breatheGainNode = null
+
+export function stopBreatheSound() {
+  if (!breatheGainNode) return
+  const gain = breatheGainNode
+  breatheGainNode = null
+  try {
+    if (!actx) return
+    const t = actx.currentTime
+    gain.gain.cancelScheduledValues(t)
+    gain.gain.setValueAtTime(gain.gain.value, t)
+    gain.gain.linearRampToValueAtTime(0.0001, t + 0.4)
+  } catch (e) {}
+}
+
+function breatheTone(freqStart, freqEnd, durSec = 4) {
+  stopBreatheSound()
+  try {
+    const c = getCtx()
+    const osc  = c.createOscillator()
+    const gain = c.createGain()
+    osc.type = 'sine'
+    // Frequency glide across the full phase duration
+    osc.frequency.setValueAtTime(freqStart, c.currentTime)
+    osc.frequency.exponentialRampToValueAtTime(freqEnd, c.currentTime + durSec)
+    // Volume envelope: fade in 0.5 s, hold, fade out 0.5 s
+    gain.gain.setValueAtTime(0.0001, c.currentTime)
+    gain.gain.linearRampToValueAtTime(0.08, c.currentTime + 0.5)
+    gain.gain.setValueAtTime(0.08, c.currentTime + durSec - 0.5)
+    gain.gain.linearRampToValueAtTime(0.0001, c.currentTime + durSec)
+    osc.connect(gain)
+    gain.connect(c.destination)
+    osc.start()
+    osc.stop(c.currentTime + durSec + 0.15)
+    breatheGainNode = gain
+  } catch (e) {}
+}
+
+export const sndBreatheInhale = () => breatheTone(220, 330)
+export const sndBreatheExhale = () => breatheTone(330, 220)
