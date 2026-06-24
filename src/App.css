@@ -897,19 +897,19 @@ body{
 .hist-trigger:active{transform:scale(0.96)}
 
 @keyframes overlay-in{from{opacity:0}to{opacity:1}}
-@keyframes slide-up{from{transform:translateY(100%)}to{transform:translateY(0)}}
+@keyframes modal-in{from{opacity:0;transform:scale(0.95) translateY(8px)}to{opacity:1;transform:scale(1) translateY(0)}}
 
 .hist-overlay{
   position:fixed;inset:0;z-index:900;
   background:rgba(2,8,4,0.80);
   backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
-  display:flex;align-items:flex-end;justify-content:center;
-  animation:overlay-in 0.26s ease;
-  padding-bottom:env(safe-area-inset-bottom);
+  display:flex;align-items:center;justify-content:center;
+  padding:20px;
+  animation:overlay-in 0.22s ease;
 }
 .hist-panel{
   max-width:430px;width:100%;
-  border-radius:28px 28px 0 0;
+  border-radius:20px;
   padding:0;
   backdrop-filter:blur(60px) saturate(1.9);-webkit-backdrop-filter:blur(60px) saturate(1.9);
   background-image:
@@ -918,27 +918,31 @@ body{
   background-clip:padding-box,border-box;
   background-origin:padding-box,border-box;
   border:1px solid transparent;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,0.26),0 -24px 70px rgba(0,0,0,0.42);
-  animation:slide-up 0.32s var(--ease);
-  max-height:82vh;
+  box-shadow:0 8px 60px rgba(0,0,0,0.55),inset 0 1px 0 rgba(255,255,255,0.26);
+  animation:modal-in 0.26s var(--ease);
+  max-height:80vh;
   display:flex;flex-direction:column;
   min-height:0;
 }
 .hist-hdr{
   display:flex;align-items:center;justify-content:space-between;
-  padding:20px 20px 14px;
+  padding:18px 20px 14px;
   border-bottom:1px solid rgba(255,255,255,0.09);
   flex-shrink:0;
+  position:sticky;top:0;
+  border-radius:20px 20px 0 0;
 }
 .hist-title{font-size:16px;font-weight:800;color:var(--g2)}
 .hist-close{
-  width:28px;height:28px;border-radius:50%;border:none;
-  background:rgba(255,255,255,0.10);
-  color:rgba(255,255,255,0.70);font-size:13px;cursor:pointer;
+  width:30px;height:30px;border-radius:50%;border:none;
+  background:rgba(255,255,255,0.12);
+  color:rgba(255,255,255,0.80);font-size:14px;cursor:pointer;
   display:flex;align-items:center;justify-content:center;font-family:inherit;
+  flex-shrink:0;
 }
+.hist-close:active{transform:scale(0.90)}
 .hist-list{
-  padding:4px 20px 28px;
+  padding:4px 20px 24px;
   overflow-y:auto;
   -webkit-overflow-scrolling:touch;
   flex:1;

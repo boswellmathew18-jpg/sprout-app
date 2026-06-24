@@ -16,7 +16,7 @@ import WeeklyStats from './components/WeeklyStats'
 import { TR, FLAGS, CODES, LANGS } from './translations'
 import { sndHabit, sndWater, sndWaterTap, sndSleep, sndEmoji, sndSave, sndPlant, sndMilestone, sndStreakSave, sndBreathingComplete, startAmbient, stopAmbient, startRain, stopRain } from './audio'
 
-const LANG_NAMES = { en: 'English', es: 'EspaÃ±ol', de: 'Deutsch', fr: 'FranÃ§ais' }
+const LANG_NAMES = { en: 'English', es: 'Español', de: 'Deutsch', fr: 'Français' }
 const SURPRISE_TYPES = ['ladybug', 'rainbow', 'sun']
 
 const SK = 'sprout_data'
@@ -25,11 +25,11 @@ const TODAY = new Date().toISOString().split('T')[0]
 const CF_COLORS = ['#6ccc78', '#ffd166', '#ffb3c6', '#5bc8ee', '#f6b73c', '#a8d8b5', '#ff9ee8']
 const GB_COLORS = ['#7de89a', '#4caf78', '#aaf4b2', '#5ddd7a', '#86efac', '#34d37a', '#a7f3d0']
 const MS_DATA = {
-  3:  { emoji: 'ðŸ”¥', text: '3 Day Streak!',  sub: "You're building something real." },
-  7:  { emoji: 'ðŸ”¥', text: '7 Day Streak!',  sub: 'One whole week â€” incredible!' },
-  14: { emoji: 'ðŸ”¥', text: '2 Week Streak!', sub: 'Consistency is your superpower.' },
-  21: { emoji: 'ðŸ”¥', text: '21 Day Streak!', sub: 'This is becoming a habit for life.' },
-  30: { emoji: 'ðŸ”¥', text: '30 Day Streak!', sub: 'One whole month. You did it.' },
+  3:  { emoji: '🔥', text: '3 Day Streak!',  sub: "You're building something real." },
+  7:  { emoji: '🔥', text: '7 Day Streak!',  sub: 'One whole week — incredible!' },
+  14: { emoji: '🔥', text: '2 Week Streak!', sub: 'Consistency is your superpower.' },
+  21: { emoji: '🔥', text: '21 Day Streak!', sub: 'This is becoming a habit for life.' },
+  30: { emoji: '🔥', text: '30 Day Streak!', sub: 'One whole month. You did it.' },
 }
 
 function recalcHabitStreak(days, today, habitId) {
@@ -103,7 +103,7 @@ function getGreeting(lang, name) {
 
 function getTimeEmoji() {
   const h = new Date().getHours()
-  return h >= 5 && h < 12 ? 'ðŸŒ¿' : h >= 12 && h < 18 ? 'â˜€ï¸' : 'ðŸŒ™'
+  return h >= 5 && h < 12 ? '🌿' : h >= 12 && h < 18 ? '☀️' : '🌙'
 }
 
 function SplitText({ text, emoji }) {
@@ -503,7 +503,7 @@ export default function App() {
       return next
     })
 
-    // Streak flame sticker â€” only first save of the day
+    // Streak flame sticker — only first save of the day
     if (saveStreak >= 1 && !alreadySaved) {
       const msData = MS_DATA[saveStreak] || null
       setTimeout(() => {
@@ -556,7 +556,7 @@ export default function App() {
     setPlantGoldGlow(false)
   }, [])
 
-  // Flame popup â€” spring entrance + count-up number
+  // Flame popup — spring entrance + count-up number
   useEffect(() => {
     const el = flameElRef.current
     if (!el) return
@@ -647,7 +647,7 @@ export default function App() {
       <ForestBackground />
       <div className={`breathe-night-veil${activeTab === 'breathe' ? ' active' : ''}`} />
 
-      {/* â”€â”€ HOME TAB â”€â”€ */}
+      {/* ── HOME TAB ── */}
       <div className={`tab-pane${activeTab === 'home' ? ' tab-pane-active' : ''}`}>
         <div className="app">
           {/* HEADER */}
@@ -668,7 +668,7 @@ export default function App() {
               <button className="lang-btn" onClick={() => setLangDropOpen(o => !o)}>
                 <span>{FLAGS[lang]}</span>
                 <span>{CODES[lang]}</span>
-                <span style={{ fontSize: 9, opacity: 0.5, marginLeft: 1 }}>â–¾</span>
+                <span style={{ fontSize: 9, opacity: 0.5, marginLeft: 1 }}>▾</span>
               </button>
               <div className={`lang-drop ${langDropOpen ? 'open' : ''}`}>
                 {LANGS.map(l => (
@@ -731,7 +731,7 @@ export default function App() {
         </div>
       </div>
 
-      {/* â”€â”€ BREATHE TAB â”€â”€ always mounted so timer survives tab switches */}
+      {/* ── BREATHE TAB ── always mounted so timer survives tab switches */}
       <div className={`tab-pane breathe-tab-pane${activeTab === 'breathe' ? ' tab-pane-active' : ''}`}>
         <StarfieldBackground />
         <div className="breathe-tab-full">
@@ -753,7 +753,7 @@ export default function App() {
         </div>
       </div>
 
-      {/* â”€â”€ GROWTH TAB â”€â”€ */}
+      {/* ── GROWTH TAB ── */}
       <div className={`tab-pane${activeTab === 'growth' ? ' tab-pane-active' : ''}`}>
         <div className="app">
           <h2 className="growth-title">{t.growthTitle}</h2>
@@ -764,7 +764,7 @@ export default function App() {
         </div>
       </div>
 
-      {/* â”€â”€ BOTTOM TAB BAR â”€â”€ */}
+      {/* ── BOTTOM TAB BAR ── */}
       <nav className="tab-bar">
         <button
           className={`tab-btn${activeTab === 'home' ? ' active' : ''}`}
@@ -789,7 +789,7 @@ export default function App() {
         </button>
       </nav>
 
-      {/* â”€â”€ CONFETTI â”€â”€ */}
+      {/* ── CONFETTI ── */}
       <div className="confetti-wrap">
         {confettiItems.map(item => (
           <div
@@ -809,7 +809,7 @@ export default function App() {
         ))}
       </div>
 
-      {/* â”€â”€ GREEN BURST â”€â”€ */}
+      {/* ── GREEN BURST ── */}
       <div className="gb-wrap">
         {greenBurstItems.map(item => (
           <div
@@ -831,10 +831,10 @@ export default function App() {
         ))}
       </div>
 
-      {/* â”€â”€ BUTTERFLIES â”€â”€ */}
+      {/* ── BUTTERFLIES ── */}
       <div className="butterfly-stage" ref={bfStageRef} />
 
-      {/* â”€â”€ HABIT MILESTONE OVERLAY â”€â”€ */}
+      {/* ── HABIT MILESTONE OVERLAY ── */}
       <div className={`milestone-ov ${milestoneShow ? 'show' : ''}`}>
         <div className="milestone-inner">
           <div className="milestone-emoji">{milestone?.emoji}</div>
@@ -843,15 +843,15 @@ export default function App() {
         </div>
       </div>
 
-      {/* â”€â”€ STREAK FLAME STICKER â”€â”€ anime.js drives opacity/transform */}
+      {/* ── STREAK FLAME STICKER ── anime.js drives opacity/transform */}
       <div className="sf-float-wrap">
         <div className="streak-flame-float" ref={flameElRef} style={{ opacity: 0 }}>
-          <div className="sf-flame-only">ðŸ”¥</div>
+          <div className="sf-flame-only">🔥</div>
           <div className="sf-count-only">{displayCount} day streak</div>
         </div>
       </div>
 
-      {/* â”€â”€ BREATHING COMPLETION OVERLAY â”€â”€ */}
+      {/* ── BREATHING COMPLETION OVERLAY ── */}
       {breatheShow && (
         <div className="breathe-complete-ov" onClick={dismissBreathe}>
           <div className="bc-particles">
@@ -870,13 +870,13 @@ export default function App() {
             ))}
           </div>
           <div className="bc-msg">
-            <div className="bc-text">Well done ðŸŒ¿</div>
+            <div className="bc-text">Well done 🌿</div>
             <div className="bc-sub">You took a moment for yourself</div>
           </div>
         </div>
       )}
 
-      {/* â”€â”€ TOAST â”€â”€ */}
+      {/* ── TOAST ── */}
       <div className={`toast ${toastShow ? 'show' : ''}`}>{toastMsg}</div>
     </>
   )
