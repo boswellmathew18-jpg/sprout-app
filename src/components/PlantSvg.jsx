@@ -78,57 +78,22 @@ export default function PlantSvg({ score = 2, week = 1, onTap, isBreathing = fal
         lineHeight: 0,
       }}>
 
-        {/* Tree body — PNG with transparent background */}
+        {/* Tree body — filter reflects emotional state */}
         <img
           src={treeImage}
           alt="Grove tree"
-          style={{ width: '100%', height: 'auto', display: 'block' }}
-        />
-
-        {/* Face overlay — positioned over the foliage area */}
-        <svg
           style={{
-            position: 'absolute',
-            top: '52%',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            width: '60%',
-            pointerEvents: 'none',
+            width: '100%',
+            height: 'auto',
+            display: 'block',
+            filter: emotionalState === 'sad'
+              ? 'brightness(0.85) saturate(0.8)'
+              : emotionalState === 'blooming'
+              ? 'brightness(1.1) saturate(1.2)'
+              : 'none',
+            transition: 'filter 0.6s ease',
           }}
-          viewBox="0 0 120 60"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          {emotionalState === 'sad' && (
-            <>
-              <path d="M28 18 Q34 12 40 18" fill="none" stroke="#1a1a1a" strokeWidth="3" strokeLinecap="round"/>
-              <path d="M80 18 Q86 12 92 18" fill="none" stroke="#1a1a1a" strokeWidth="3" strokeLinecap="round"/>
-              <path d="M46 42 Q60 36 74 42" fill="none" stroke="#1a1a1a" strokeWidth="2.5" strokeLinecap="round"/>
-              <ellipse cx="35" cy="28" rx="3" ry="4" fill="#aee4ff"/>
-            </>
-          )}
-          {emotionalState === 'happy' && (
-            <>
-              <circle cx="34" cy="16" r="9" fill="#1a1a1a"/>
-              <circle cx="86" cy="16" r="9" fill="#1a1a1a"/>
-              <circle cx="30" cy="12" r="3" fill="white"/>
-              <circle cx="82" cy="12" r="3" fill="white"/>
-              <ellipse cx="18" cy="28" rx="12" ry="7" fill="#f5c8a8" opacity="0.8"/>
-              <ellipse cx="102" cy="28" rx="12" ry="7" fill="#f5c8a8" opacity="0.8"/>
-              <path d="M44 38 Q60 52 76 38" fill="white" stroke="#1a1a1a" strokeWidth="2.5" strokeLinecap="round"/>
-              <path d="M44 38 Q60 44 76 38" fill="none" stroke="#1a1a1a" strokeWidth="2" strokeLinecap="round"/>
-            </>
-          )}
-          {emotionalState === 'blooming' && (
-            <>
-              <path d="M26 18 Q34 8 42 18" fill="none" stroke="#1a1a1a" strokeWidth="3.5" strokeLinecap="round"/>
-              <path d="M78 18 Q86 8 94 18" fill="none" stroke="#1a1a1a" strokeWidth="3.5" strokeLinecap="round"/>
-              <ellipse cx="16" cy="28" rx="14" ry="9" fill="#ff85a1" opacity="0.85"/>
-              <ellipse cx="104" cy="28" rx="14" ry="9" fill="#ff85a1" opacity="0.85"/>
-              <path d="M40 36 Q60 56 80 36" fill="white" stroke="#1a1a1a" strokeWidth="3" strokeLinecap="round"/>
-              <path d="M40 36 Q60 44 80 36" fill="none" stroke="#1a1a1a" strokeWidth="2" strokeLinecap="round"/>
-            </>
-          )}
-        </svg>
+        />
 
         {/* Sparkle stars — blooming state only */}
         {emotionalState === 'blooming' && (
