@@ -612,9 +612,6 @@ body{
   100%{transform:translateY(108vh) rotate(560deg) scale(0.6);opacity:0}
 }
 
-/* ── FIREFLIES ── */
-.firefly-stage{position:fixed;inset:0;pointer-events:none;z-index:2;overflow:hidden}
-.firefly{position:absolute;border-radius:50%;will-change:transform,opacity}
 
 /* ── MILESTONE OVERLAY ── */
 .milestone-ov{

@@ -10,7 +10,6 @@ import ForestBackground from './components/ForestBackground'
 import StarfieldBackground from './components/StarfieldBackground'
 import Breathe from './components/Breathe'
 import MoodHistory from './components/MoodHistory'
-import Fireflies from './components/Fireflies'
 import ForestPreview from './components/ForestPreview'
 import StreakCalendar from './components/StreakCalendar'
 import WeeklyStats from './components/WeeklyStats'
@@ -757,8 +756,6 @@ export default function App() {
         ))}
       </div>
 
-      {/* ── FIREFLIES ── */}
-      <Fireflies />
 
       {/* ── HABIT MILESTONE OVERLAY ── */}
       <div className={`milestone-ov ${milestoneShow ? 'show' : ''}`}>
