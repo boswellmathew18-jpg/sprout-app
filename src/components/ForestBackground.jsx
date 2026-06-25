@@ -1,7 +1,4 @@
-import { useMemo, useEffect, useRef } from 'react'
-import { animate } from 'animejs'
-
-const PREFERS_REDUCED_MOTION = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+import { useMemo } from 'react'
 
 function treeD(cx, baseY, w, h) {
   const t = Math.max(4, w * 0.09)
@@ -67,8 +64,6 @@ function rayPath(topW, botW, len = 1100) {
 }
 
 export default function ForestBackground() {
-  const raysSvgRef = useRef(null)
-
   const particles = useMemo(() => Array.from({ length: 24 }, (_, i) => ({
     id: i,
     x: 1 + Math.random() * 98,
@@ -79,29 +74,6 @@ export default function ForestBackground() {
     drift: Math.round(-30 + Math.random() * 60),
     opacity: 0.55 + Math.random() * 0.45,
   })), [])
-
-  useEffect(() => {
-    if (PREFERS_REDUCED_MOTION) return
-    const svg = raysSvgRef.current
-    if (!svg) return
-    const rays = svg.querySelectorAll('.svg-ray')
-    const anims = []
-
-    rays.forEach((ray, i) => {
-      const base = SOFT_RAYS[i].op
-      const a = animate(ray, {
-        opacity: [base * 0.28, base],
-        duration: 4200 + i * 260,
-        delay: i * 620,
-        alternate: true,
-        loop: Infinity,
-        ease: 'inOutSine',
-      })
-      anims.push(a)
-    })
-
-    return () => anims.forEach(a => a.pause())
-  }, [])
 
   return (
     <div className="forest-bg" aria-hidden="true">
@@ -121,7 +93,6 @@ export default function ForestBackground() {
 
       {/* SVG GOD RAYS — soft organic sunlight beams */}
       <svg
-        ref={raysSvgRef}
         className="forest-rays-svg"
         xmlns="http://www.w3.org/2000/svg"
         aria-hidden="true"
@@ -145,9 +116,15 @@ export default function ForestBackground() {
               className="svg-ray"
               d={rayPath(r.topW, r.botW)}
               fill="url(#rayGoldGrad)"
-              opacity={r.op}
               filter="url(#rayBlur)"
-              style={{ transformOrigin: '0 0', transform: `rotate(${r.angle}deg)` }}
+              style={{
+                transformOrigin: '0 0',
+                transform: `rotate(${r.angle}deg)`,
+                '--ray-op': r.op,
+                '--ray-op-low': (r.op * 0.28).toFixed(3),
+                animationDuration: `${4200 + i * 260}ms`,
+                animationDelay: `-${i * 800}ms`,
+              }}
             />
           ))}
         </g>

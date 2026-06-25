@@ -10,7 +10,7 @@
   --txt: rgba(255,255,255,0.97);
   --sub: rgba(178,234,208,0.90);
 }
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;touch-action:manipulation;-webkit-backface-visibility:hidden;backface-visibility:hidden}
 body{
   font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;
   background:linear-gradient(180deg,#071510 0%,#0c2418 38%,#091d10 68%,#050f08 100%);
@@ -20,6 +20,8 @@ body{
   -webkit-overflow-scrolling:touch;
   overscroll-behavior:none;
 }
+html,body{height:100%;overflow:hidden;position:fixed;width:100%}
+#root{height:100%;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:env(safe-area-inset-bottom)}
 
 /* ── FOREST BACKGROUND ── */
 .forest-bg{
@@ -49,6 +51,12 @@ body{
   0%  {transform:rotate(-0.7deg)}
   100%{transform:rotate(0.7deg)}
 }
+.svg-ray{animation:ray-pulse ease-in-out infinite alternate}
+@keyframes ray-pulse{
+  from{opacity:var(--ray-op-low,0.05)}
+  to{opacity:var(--ray-op,0.15)}
+}
+@media(prefers-reduced-motion:reduce){.svg-ray{animation:none}}
 .forest-particles{
   position:absolute;inset:0;overflow:hidden;
 }
@@ -148,7 +156,9 @@ body{
   display:flex;align-items:flex-start;justify-content:space-around;
   padding-top:10px;
   padding-bottom:env(safe-area-inset-bottom);
-  z-index:100;
+  z-index:1000;
+  transform:translateZ(0);-webkit-transform:translateZ(0);
+  will-change:transform;
   backdrop-filter:blur(28px) saturate(1.6);-webkit-backdrop-filter:blur(28px) saturate(1.6);
   background:rgba(4,14,7,0.80);
   border-top:1px solid rgba(255,255,255,0.09);
