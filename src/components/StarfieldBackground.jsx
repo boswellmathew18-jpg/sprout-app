@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 
 export default function StarfieldBackground() {
-  const stars = useMemo(() => Array.from({ length: 120 }, (_, i) => {
+  const stars = useMemo(() => Array.from({ length: 50 }, (_, i) => {
     const opacity = 0.25 + Math.random() * 0.75
     const twinkle = Math.random() > 0.55
     return {

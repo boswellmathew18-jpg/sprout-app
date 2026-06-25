@@ -18,6 +18,7 @@ import { sndHabit, sndWater, sndWaterTap, sndSleep, sndEmoji, sndSave, sndPlant,
 
 const LANG_NAMES = { en: 'English', es: 'Español', de: 'Deutsch', fr: 'Français' }
 const SURPRISE_TYPES = ['ladybug', 'rainbow', 'sun']
+const PREFERS_REDUCED_MOTION = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
 // One-time migration: copy sprout_ localStorage data to grove_ namespace
 ;(function () {
@@ -503,28 +504,38 @@ export default function App() {
     if (!el) return
     if (streakFlameShow) {
       const count = streakFlame?.count || 0
-      setDisplayCount(0)
-      set(el, { translateY: 120, opacity: 0, scale: 0.85 })
-      animate(el, {
-        translateY: [120, 0],
-        opacity: [0, 1],
-        scale: [0.85, 1],
-        ease: spring({ stiffness: 200, damping: 12 }),
-      })
-      const counter = { val: 0 }
-      animate(counter, {
-        val: count,
-        duration: 600,
-        ease: 'outQuart',
-        onUpdate: () => setDisplayCount(Math.round(counter.val)),
-      })
+      setDisplayCount(count)
+      if (!PREFERS_REDUCED_MOTION) {
+        set(el, { translateY: 120, opacity: 0, scale: 0.85 })
+        animate(el, {
+          translateY: [120, 0],
+          opacity: [0, 1],
+          scale: [0.85, 1],
+          ease: spring({ stiffness: 200, damping: 12 }),
+        })
+        const counter = { val: 0 }
+        setDisplayCount(0)
+        animate(counter, {
+          val: count,
+          duration: 600,
+          ease: 'outQuart',
+          onUpdate: () => setDisplayCount(Math.round(counter.val)),
+        })
+      } else {
+        el.style.opacity = '1'
+        el.style.transform = 'none'
+      }
     } else {
-      animate(el, {
-        translateY: -16,
-        opacity: 0,
-        duration: 260,
-        ease: 'inQuart',
-      })
+      if (!PREFERS_REDUCED_MOTION) {
+        animate(el, {
+          translateY: -16,
+          opacity: 0,
+          duration: 260,
+          ease: 'inQuart',
+        })
+      } else {
+        el.style.opacity = '0'
+      }
     }
   }, [streakFlameShow])
 
@@ -532,6 +543,7 @@ export default function App() {
   useEffect(() => {
     const delay = isFirstRender.current ? 950 : 50
     isFirstRender.current = false
+    if (PREFERS_REDUCED_MOTION) return
     const id = setTimeout(() => {
       const cards = document.querySelectorAll('.tab-pane-active .card, .tab-pane-active .wk-stats')
       if (!cards.length) return

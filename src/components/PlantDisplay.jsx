@@ -1,5 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { animate, spring } from 'animejs'
+
+const PREFERS_REDUCED_MOTION = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 import PlantSvg from './PlantSvg'
 import { TR } from '../translations'
 
@@ -85,15 +87,17 @@ export default function PlantDisplay({ score, week, lang, onTap, surprise, isBre
   useEffect(() => {
     const el = plantRef.current
     if (!el) return
-    el.style.opacity = '0'
-    el.style.transform = 'scale(0.62) translateY(28px)'
-    animate(el, {
-      opacity: [0, 1],
-      scale: [0.62, 1],
-      translateY: [28, 0],
-      delay: 180,
-      ease: spring({ stiffness: 120, damping: 14 }),
-    })
+    if (!PREFERS_REDUCED_MOTION) {
+      el.style.opacity = '0'
+      el.style.transform = 'scale(0.62) translateY(28px)'
+      animate(el, {
+        opacity: [0, 1],
+        scale: [0.62, 1],
+        translateY: [28, 0],
+        delay: 180,
+        ease: spring({ stiffness: 120, damping: 14 }),
+      })
+    }
   }, [])
 
   return (

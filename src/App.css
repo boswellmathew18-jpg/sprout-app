@@ -10,18 +10,21 @@
   --txt: rgba(255,255,255,0.97);
   --sub: rgba(178,234,208,0.90);
 }
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 body{
   font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;
   background:linear-gradient(180deg,#071510 0%,#0c2418 38%,#091d10 68%,#050f08 100%);
   background-color:#0a1a0f;
   min-height:100dvh;color:var(--txt);
   overflow-x:hidden;
+  -webkit-overflow-scrolling:touch;
+  overscroll-behavior:none;
 }
 
 /* ── FOREST BACKGROUND ── */
 .forest-bg{
   position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;
+  contain:layout style paint;
 }
 .forest-layer-back{
   position:absolute;bottom:0;left:0;width:100%;height:60vh;
@@ -39,16 +42,12 @@ body{
   pointer-events:none;
   z-index:1;
   transform-origin:50% 0%;
-  animation:rays-sway 11s ease-in-out infinite alternate,
-             ray-color-shift 8s ease-in-out infinite;
+  will-change:transform;
+  animation:rays-sway 11s ease-in-out infinite alternate;
 }
 @keyframes rays-sway{
   0%  {transform:rotate(-0.7deg)}
   100%{transform:rotate(0.7deg)}
-}
-@keyframes ray-color-shift{
-  0%,100%{filter:hue-rotate(0deg)}
-  50%    {filter:hue-rotate(-18deg)}
 }
 .forest-particles{
   position:absolute;inset:0;overflow:hidden;
@@ -180,7 +179,7 @@ body{
   background:#fff;
   opacity:var(--op);
   animation:star-drift linear infinite;
-  will-change:transform;
+  will-change:transform,opacity;
 }
 .star-twinkle{animation:star-drift linear infinite,star-twinkle ease-in-out infinite}
 @keyframes star-drift{

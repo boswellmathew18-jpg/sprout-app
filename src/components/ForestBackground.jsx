@@ -1,6 +1,8 @@
 import { useMemo, useEffect, useRef } from 'react'
 import { animate } from 'animejs'
 
+const PREFERS_REDUCED_MOTION = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
 function treeD(cx, baseY, w, h) {
   const t = Math.max(4, w * 0.09)
   return [
@@ -67,7 +69,7 @@ function rayPath(topW, botW, len = 1100) {
 export default function ForestBackground() {
   const raysSvgRef = useRef(null)
 
-  const particles = useMemo(() => Array.from({ length: 48 }, (_, i) => ({
+  const particles = useMemo(() => Array.from({ length: 24 }, (_, i) => ({
     id: i,
     x: 1 + Math.random() * 98,
     y: 2 + Math.random() * 95,
@@ -79,6 +81,7 @@ export default function ForestBackground() {
   })), [])
 
   useEffect(() => {
+    if (PREFERS_REDUCED_MOTION) return
     const svg = raysSvgRef.current
     if (!svg) return
     const rays = svg.querySelectorAll('.svg-ray')
@@ -130,8 +133,8 @@ export default function ForestBackground() {
             <stop offset="72%"  stopColor="#FF8C00" stopOpacity="0.23" />
             <stop offset="100%" stopColor="#FF6600" stopOpacity="0"    />
           </linearGradient>
-          <filter id="rayBlur" x="-60%" y="-5%" width="220%" height="110%">
-            <feGaussianBlur stdDeviation="20" />
+          <filter id="rayBlur" x="-40%" y="-5%" width="180%" height="110%">
+            <feGaussianBlur stdDeviation="10" />
           </filter>
         </defs>
         {/* Beams fan from ~50% horizontal, 6% vertical */}
