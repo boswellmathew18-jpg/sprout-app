@@ -14,6 +14,7 @@
 body{
   font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;
   background:linear-gradient(180deg,#071510 0%,#0c2418 38%,#091d10 68%,#050f08 100%);
+  background-color:#0a1a0f;
   min-height:100dvh;color:var(--txt);
   overflow-x:hidden;
 }
@@ -1297,12 +1298,13 @@ body{
 
 /* ── SEED MESSAGE (day 1 empty state) ── */
 .seed-msg{
-  font-size:13px;color:rgba(180,220,195,0.36);
+  font-size:15px;color:rgba(255,255,255,0.85);
   text-align:center;line-height:1.6;
   padding:0 36px 10px;
   font-weight:500;letter-spacing:0.08px;
   animation:seed-fade 0.9s ease;
   font-style:italic;
+  text-shadow:0 1px 4px rgba(0,0,0,0.5);
 }
 @keyframes seed-fade{
   from{opacity:0;transform:translateY(5px)}

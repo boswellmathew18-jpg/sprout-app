@@ -31,7 +31,7 @@ function encodePNG(w, h, pixels) {
   ihdr[8]=8; ihdr[9]=6; // RGBA
   const raw = Buffer.alloc(h * (1 + w * 4));
   for (let y = 0; y < h; y++) {
-    raw[y * (w*4+1)] = 0; // filter: None
+    raw[y * (w*4+1)] = 0;
     for (let x = 0; x < w; x++) {
       const si = (y*w+x)*4, di = y*(w*4+1)+1+x*4;
       raw[di]=pixels[si]; raw[di+1]=pixels[si+1]; raw[di+2]=pixels[si+2]; raw[di+3]=pixels[si+3];
@@ -40,10 +40,32 @@ function encodePNG(w, h, pixels) {
   return Buffer.concat([sig, chunk('IHDR',ihdr), chunk('IDAT', zlib.deflateSync(raw,{level:9})), chunk('IEND',Buffer.alloc(0))]);
 }
 
-function setpx(px, s, x, y, r, g, b, a) {
+function setpx(px, s, x, y, r, g, b, a=255) {
   x=Math.round(x); y=Math.round(y);
   if (x<0||x>=s||y<0||y>=s) return;
   const i=(y*s+x)*4; px[i]=r; px[i+1]=g; px[i+2]=b; px[i+3]=a;
+}
+
+// Fill a circle with antialiased edge
+function fillCircle(px, s, cx, cy, radius, r, g, b) {
+  const x0=Math.floor(cx-radius-1), x1=Math.ceil(cx+radius+1);
+  const y0=Math.floor(cy-radius-1), y1=Math.ceil(cy+radius+1);
+  for (let y=y0; y<=y1; y++) {
+    for (let x=x0; x<=x1; x++) {
+      if (x<0||x>=s||y<0||y>=s) continue;
+      const d=Math.sqrt((x-cx)**2+(y-cy)**2);
+      if (d<=radius+0.5) {
+        const a = d>radius-0.5 ? Math.round(255*(radius+0.5-d)) : 255;
+        const i=(y*s+x)*4;
+        // blend over existing
+        const fa=a/255, fb=1-fa;
+        px[i]  =Math.round(r*fa+px[i]  *fb);
+        px[i+1]=Math.round(g*fa+px[i+1]*fb);
+        px[i+2]=Math.round(b*fa+px[i+2]*fb);
+        px[i+3]=Math.min(255, px[i+3]+a);
+      }
+    }
+  }
 }
 
 function fillRect(px, s, x1, y1, x2, y2, r, g, b) {
@@ -52,44 +74,31 @@ function fillRect(px, s, x1, y1, x2, y2, r, g, b) {
       setpx(px, s, x, y, r, g, b, 255);
 }
 
-function fillTri(px, s, x1,y1, x2,y2, x3,y3, r,g,b) {
-  const minY=Math.floor(Math.min(y1,y2,y3)), maxY=Math.ceil(Math.max(y1,y2,y3));
-  const edges=[[x1,y1,x2,y2],[x2,y2,x3,y3],[x3,y3,x1,y1]];
-  for (let y=minY; y<=maxY; y++) {
-    const xs=[];
-    for (const [ax,ay,bx,by] of edges)
-      if ((ay<=y&&by>y)||(by<=y&&ay>y)) xs.push(ax+(y-ay)/(by-ay)*(bx-ax));
-    if (xs.length>=2) { xs.sort((a,b)=>a-b);
-      for (let x=Math.floor(xs[0]); x<=Math.ceil(xs[xs.length-1]); x++) setpx(px,s,x,y,r,g,b,255); }
-  }
-}
-
 function generateIcon(size) {
   const px = new Uint8Array(size*size*4);
-  const cx=size/2, r=size*0.46;
 
-  // Green circle background, transparent outside
-  for (let y=0; y<size; y++) {
-    for (let x=0; x<size; x++) {
-      const d=Math.sqrt((x-cx)**2+(y-cx)**2);
-      const i=(y*size+x)*4;
-      if (d<=r+0.5) {
-        const a = d>r-0.5 ? Math.round(255*(r+0.5-d)) : 255;
-        px[i]=45; px[i+1]=106; px[i+2]=79; px[i+3]=a; // #2d6a4f
-      }
-      // else alpha stays 0 (transparent)
-    }
+  // Background: #1a2e1a (26, 46, 26) — full bleed, OS applies rounded square mask
+  for (let i=0; i<size*size*4; i+=4) {
+    px[i]=26; px[i+1]=46; px[i+2]=26; px[i+3]=255;
   }
 
-  const s=size;
-  // Three-tier pine tree in white
-  fillTri(px,s, cx,s*.17, cx-s*.17,s*.41, cx+s*.17,s*.41, 255,255,255);
-  fillTri(px,s, cx,s*.27, cx-s*.24,s*.53, cx+s*.24,s*.53, 255,255,255);
-  fillTri(px,s, cx,s*.37, cx-s*.30,s*.65, cx+s*.30,s*.65, 255,255,255);
-  // Trunk
-  fillRect(px,s, cx-s*.035,s*.63, cx+s*.035,s*.76, 255,255,255);
+  const cx = size/2;
+  // Tree color: #6cc274 (108, 194, 116)
+  const [tr, tg, tb] = [108, 194, 116];
+  // Trunk color: slightly darker #4a8a52 (74, 138, 82)
+  const [vr, vg, vb] = [74, 138, 82];
 
-  return encodePNG(size,size,px);
+  // Fluffy crown — 5 overlapping circles
+  fillCircle(px, size, cx,             size*0.40, size*0.265, tr, tg, tb); // center
+  fillCircle(px, size, cx - size*0.14, size*0.45, size*0.195, tr, tg, tb); // left
+  fillCircle(px, size, cx + size*0.14, size*0.45, size*0.195, tr, tg, tb); // right
+  fillCircle(px, size, cx - size*0.09, size*0.31, size*0.175, tr, tg, tb); // top-left
+  fillCircle(px, size, cx + size*0.09, size*0.31, size*0.175, tr, tg, tb); // top-right
+
+  // Trunk
+  fillRect(px, size, cx - size*0.055, size*0.63, cx + size*0.055, size*0.77, vr, vg, vb);
+
+  return encodePNG(size, size, px);
 }
 
 for (const size of [192, 512]) {

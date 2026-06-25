@@ -570,6 +570,7 @@ export default function App() {
 
   const dateStr = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })
   const t = TR[lang]
+  const dayOfYear = Math.floor((new Date() - new Date(new Date().getFullYear(), 0, 0)) / 86400000)
   const greeting = getGreeting(lang, userName)
   const timeEmoji = getTimeEmoji()
 
@@ -619,9 +620,7 @@ export default function App() {
             goldGlow={plantGoldGlow}
           />
 
-          {showSeedMsg && (
-            <p className="seed-msg">Every forest starts with one seed. Start your first habit today.</p>
-          )}
+          <p className="seed-msg">{t.dailyQuotes[dayOfYear % t.dailyQuotes.length]}</p>
 
           {/* HABITS */}
           <HabitStreak

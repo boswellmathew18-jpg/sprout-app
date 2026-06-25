@@ -49,14 +49,14 @@ const MID_TREES = [
 
 // Soft organic sunlight beams — warm golden, blurred trapezoid shapes
 const SOFT_RAYS = [
-  { angle: -50, topW: 40, botW: 135, op: 0.09 },
-  { angle: -32, topW: 32, botW: 112, op: 0.14 },
-  { angle: -14, topW: 27, botW:  92, op: 0.19 },
-  { angle:   2, topW: 22, botW:  84, op: 0.22 },
-  { angle:  16, topW: 26, botW:  97, op: 0.17 },
-  { angle:  30, topW: 24, botW:  87, op: 0.13 },
-  { angle:  44, topW: 21, botW:  74, op: 0.08 },
-  { angle:  56, topW: 18, botW:  62, op: 0.06 },
+  { angle: -50, topW: 40, botW: 135, op: 0.12 },
+  { angle: -32, topW: 32, botW: 112, op: 0.18 },
+  { angle: -14, topW: 27, botW:  92, op: 0.25 },
+  { angle:   2, topW: 22, botW:  84, op: 0.29 },
+  { angle:  16, topW: 26, botW:  97, op: 0.22 },
+  { angle:  30, topW: 24, botW:  87, op: 0.17 },
+  { angle:  44, topW: 21, botW:  74, op: 0.10 },
+  { angle:  56, topW: 18, botW:  62, op: 0.08 },
 ]
 
 function rayPath(topW, botW, len = 1100) {
@@ -125,9 +125,9 @@ export default function ForestBackground() {
       >
         <defs>
           <linearGradient id="rayGoldGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%"   stopColor="#FFD700" stopOpacity="0.95" />
-            <stop offset="35%"  stopColor="#FFA500" stopOpacity="0.60" />
-            <stop offset="72%"  stopColor="#FF8C00" stopOpacity="0.18" />
+            <stop offset="0%"   stopColor="#FFD700" stopOpacity="1.00" />
+            <stop offset="35%"  stopColor="#FFA500" stopOpacity="0.78" />
+            <stop offset="72%"  stopColor="#FF8C00" stopOpacity="0.23" />
             <stop offset="100%" stopColor="#FF6600" stopOpacity="0"    />
           </linearGradient>
           <filter id="rayBlur" x="-60%" y="-5%" width="220%" height="110%">
