@@ -232,6 +232,7 @@ export default function App() {
   const breatheTimerRef = useRef(null)
 
   const langWrapRef = useRef(null)
+  const growthTabRef = useRef(null)
 
   const td = sproutState.days[TODAY] || { habits: {}, water: 0, sleep: null, mood: null, note: '' }
   const habits = sproutState.habits || []
@@ -269,6 +270,20 @@ export default function App() {
     }
     document.addEventListener('click', handler)
     return () => document.removeEventListener('click', handler)
+  }, [])
+
+  // iOS scroll freeze fix: nudge scrollTop away from boundaries on touchstart so
+  // rubber-band overscroll never "eats" the next upward gesture.
+  useEffect(() => {
+    const el = growthTabRef.current
+    if (!el) return
+    const onTouchStart = () => {
+      const max = el.scrollHeight - el.clientHeight
+      if (el.scrollTop <= 0) el.scrollTop = 1
+      else if (el.scrollTop >= max) el.scrollTop = max - 1
+    }
+    el.addEventListener('touchstart', onTouchStart, { passive: true })
+    return () => el.removeEventListener('touchstart', onTouchStart)
   }, [])
 
 
@@ -691,8 +706,8 @@ export default function App() {
 
       {/* ── GROWTH TAB ── */}
       <div
+        ref={growthTabRef}
         className={`tab-pane${activeTab === 'growth' ? ' tab-pane-active' : ''}`}
-        style={{ overflowY: 'auto', WebkitOverflowScrolling: 'touch', overscrollBehavior: 'contain', height: '100%', paddingBottom: '80px' }}
       >
         <div className="app">
           <h2 className="growth-title">{t.growthTitle}</h2>

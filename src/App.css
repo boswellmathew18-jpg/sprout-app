@@ -81,8 +81,7 @@ html,body{height:100%;overflow:hidden;position:fixed;width:100%}
 /* ── TAB PANES ── */
 .tab-pane{
   position:fixed;inset:0;
-  overflow-y:auto;-webkit-overflow-scrolling:touch;
-  overscroll-behavior-y:contain;
+  overflow-y:scroll;-webkit-overflow-scrolling:touch;
   opacity:0;pointer-events:none;visibility:hidden;
   transition:opacity 0.28s ease;
   z-index:5;
