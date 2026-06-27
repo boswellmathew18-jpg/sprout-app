@@ -663,27 +663,27 @@ html,body{height:100%;overflow:hidden;position:fixed;width:100%}
 .aurora-orb-1{
   width:70vw;height:70vw;max-width:500px;max-height:500px;
   background:radial-gradient(circle,rgba(80,160,100,0.6) 0%,rgba(30,90,50,0.4) 45%,transparent 70%);
-  top:-15%;left:-10%;animation-duration:11s;
+  top:-15%;left:-10%;
 }
 .aurora-orb-2{
   width:55vw;height:55vw;max-width:420px;max-height:420px;
   background:radial-gradient(circle,rgba(60,140,90,0.5) 0%,rgba(20,70,40,0.3) 45%,transparent 70%);
-  top:25%;right:-12%;animation-duration:14s;animation-delay:-5s;
+  top:25%;right:-12%;
 }
 .aurora-orb-3{
   width:45vw;height:45vw;max-width:360px;max-height:360px;
   background:radial-gradient(circle,rgba(100,160,60,0.4) 0%,rgba(50,90,20,0.2) 40%,transparent 68%);
-  bottom:5%;left:15%;animation-duration:9s;animation-delay:-8s;opacity:0.25;
+  bottom:5%;left:15%;opacity:0.25;
 }
 .aurora-orb-4{
   width:50vw;height:50vw;max-width:400px;max-height:400px;
   background:radial-gradient(circle,rgba(40,120,80,0.4) 0%,rgba(15,60,35,0.3) 45%,transparent 70%);
-  top:55%;left:35%;animation-duration:13s;animation-delay:-3s;
+  top:55%;left:35%;
 }
 .aurora-orb-5{
   width:40vw;height:40vw;max-width:320px;max-height:320px;
   background:radial-gradient(circle,rgba(80,60,140,0.3) 0%,rgba(30,15,70,0.2) 42%,transparent 68%);
-  top:5%;right:10%;animation-duration:16s;animation-delay:-11s;opacity:0.22;
+  top:5%;right:10%;opacity:0.22;
 }
 
 /* ── PLANT BREATHING ── */
