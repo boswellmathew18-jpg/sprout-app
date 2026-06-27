@@ -709,7 +709,7 @@ export default function App() {
         ref={growthTabRef}
         className={`tab-pane${activeTab === 'growth' ? ' tab-pane-active' : ''}`}
       >
-        <div className="app" style={{ paddingTop: '20px' }}>
+        <div className="app" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 20px)' }}>
           <h2 className="growth-title">{t.growthTitle}</h2>
           <StreakCalendar days={sproutState.days} lang={lang} />
           <WeeklyStats days={sproutState.days} habits={habits} lang={lang} />

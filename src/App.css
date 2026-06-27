@@ -197,7 +197,7 @@ html,body{height:100%;overflow:hidden;position:fixed;width:100%}
 
 /* ── GROWTH TAB HEADER ── */
 .growth-hdr{padding:44px 0 16px}
-.growth-title{font-size:clamp(18px,4.5vw,26px);font-weight:800;color:var(--txt);letter-spacing:-0.6px;text-shadow:0 2px 12px rgba(0,0,0,0.40)}
+.growth-title{font-size:clamp(18px,4.5vw,26px);font-weight:800;color:var(--txt);letter-spacing:-0.6px;text-shadow:0 2px 12px rgba(0,0,0,0.40);margin-top:0;padding-top:0}
 .growth-sub{font-size:13px;color:var(--sub);margin-top:4px;font-weight:500}
 
 /* ── STREAK CALENDAR ── */
