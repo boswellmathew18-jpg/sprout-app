@@ -690,7 +690,10 @@ export default function App() {
       </div>
 
       {/* ── GROWTH TAB ── */}
-      <div className={`tab-pane${activeTab === 'growth' ? ' tab-pane-active' : ''}`}>
+      <div
+        className={`tab-pane${activeTab === 'growth' ? ' tab-pane-active' : ''}`}
+        style={{ overflowY: 'auto', WebkitOverflowScrolling: 'touch', overscrollBehavior: 'contain', height: '100%', paddingBottom: '80px' }}
+      >
         <div className="app">
           <h2 className="growth-title">{t.growthTitle}</h2>
           <StreakCalendar days={sproutState.days} lang={lang} />
