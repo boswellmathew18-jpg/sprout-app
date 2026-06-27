@@ -279,8 +279,8 @@ export default function App() {
     if (!el) return
     const onTouchStart = () => {
       const max = el.scrollHeight - el.clientHeight
-      if (el.scrollTop <= 0) el.scrollTop = 1
-      else if (el.scrollTop >= max) el.scrollTop = max - 1
+      if (el.scrollTop <= 2) el.scrollTop = 2
+      else if (el.scrollTop >= max - 2) el.scrollTop = max - 2
     }
     el.addEventListener('touchstart', onTouchStart, { passive: true })
     return () => el.removeEventListener('touchstart', onTouchStart)
@@ -709,12 +709,13 @@ export default function App() {
         ref={growthTabRef}
         className={`tab-pane${activeTab === 'growth' ? ' tab-pane-active' : ''}`}
       >
-        <div className="app">
+        <div className="app" style={{ paddingTop: '20px' }}>
           <h2 className="growth-title">{t.growthTitle}</h2>
           <StreakCalendar days={sproutState.days} lang={lang} />
           <WeeklyStats days={sproutState.days} habits={habits} lang={lang} />
           <MoodHistory lang={lang} />
           <ForestPreview lang={lang} />
+          <div style={{ height: '120px', flexShrink: 0 }} />
         </div>
       </div>
 
