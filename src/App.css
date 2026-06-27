@@ -43,36 +43,8 @@ html,body{height:100%;overflow:hidden;position:fixed;width:100%}
   overflow:hidden;
   pointer-events:none;
   z-index:1;
-  transform-origin:50% 0%;
-  will-change:transform;
-  animation:rays-sway 11s ease-in-out infinite alternate;
 }
-@keyframes rays-sway{
-  0%  {transform:rotate(-0.7deg)}
-  100%{transform:rotate(0.7deg)}
-}
-.svg-ray{animation:ray-pulse ease-in-out infinite alternate}
-@keyframes ray-pulse{
-  from{opacity:var(--ray-op-low,0.05)}
-  to{opacity:var(--ray-op,0.15)}
-}
-@media(prefers-reduced-motion:reduce){.svg-ray{animation:none}}
-.forest-particles{
-  position:absolute;inset:0;overflow:hidden;
-}
-.forest-particle{
-  position:absolute;border-radius:50%;
-  background:radial-gradient(circle,rgba(255,255,245,1) 0%,rgba(255,230,160,0.75) 45%,transparent 100%);
-  box-shadow:0 0 5px 2px rgba(255,220,140,0.45);
-  animation:particle-drift linear infinite;
-  will-change:transform,opacity;
-}
-@keyframes particle-drift{
-  0%  {transform:translateY(0) translateX(0);opacity:0}
-  5%  {opacity:1}
-  88% {opacity:0.70}
-  100%{transform:translateY(-130px) translateX(var(--pdrift));opacity:0}
-}
+.svg-ray{opacity:var(--ray-op)}
 /* Ground mist */
 .forest-mist{
   position:absolute;bottom:0;left:-15%;width:130%;height:34vh;
@@ -84,35 +56,27 @@ html,body{height:100%;overflow:hidden;position:fixed;width:100%}
 .mist-layer-1{
   width:145%;height:120px;left:-22%;
   background:radial-gradient(ellipse at 50% 100%,rgba(240,255,248,0.52) 0%,rgba(210,245,232,0.28) 50%,transparent 100%);
-  animation:mist-a 13s ease-in-out infinite alternate;
 }
 .mist-layer-2{
   width:125%;height:90px;left:-12%;bottom:14px;
   background:radial-gradient(ellipse at 40% 100%,rgba(255,255,255,0.40) 0%,rgba(220,248,238,0.20) 55%,transparent 100%);
-  animation:mist-b 9s ease-in-out infinite alternate;
 }
 .mist-layer-3{
   width:100%;height:65px;left:0%;bottom:30px;
   background:radial-gradient(ellipse at 60% 100%,rgba(220,250,238,0.32) 0%,rgba(200,240,228,0.14) 60%,transparent 100%);
-  animation:mist-a 11s ease-in-out 2s infinite alternate;
 }
 .mist-layer-4{
   width:170%;height:105px;left:-35%;bottom:4px;
   background:radial-gradient(ellipse at 52% 100%,rgba(255,255,255,0.30) 0%,rgba(200,238,222,0.16) 55%,transparent 100%);
-  animation:mist-b 18s ease-in-out 1s infinite alternate;
 }
 .mist-layer-5{
   width:85%;height:50px;left:8%;bottom:48px;
   background:radial-gradient(ellipse at 48% 100%,rgba(210,248,232,0.24) 0%,transparent 68%);
-  animation:mist-a 8s ease-in-out 3.5s infinite alternate;
 }
 .mist-layer-6{
   width:110%;height:75px;left:-5%;bottom:22px;
   background:radial-gradient(ellipse at 62% 100%,rgba(255,255,255,0.18) 0%,rgba(190,235,218,0.10) 58%,transparent 100%);
-  animation:mist-b 14s ease-in-out 6s infinite alternate;
 }
-@keyframes mist-a{0%{transform:translateX(0) scaleY(1);opacity:0.7}100%{transform:translateX(6%) scaleY(1.22);opacity:1}}
-@keyframes mist-b{0%{transform:translateX(0) scaleY(1);opacity:0.6}100%{transform:translateX(-7%) scaleY(1.28);opacity:0.95}}
 
 /* ── TAB PANES ── */
 .tab-pane{
@@ -187,18 +151,6 @@ html,body{height:100%;overflow:hidden;position:fixed;width:100%}
 .star{
   position:absolute;border-radius:50%;
   background:#fff;
-  opacity:var(--op);
-  animation:star-drift linear infinite;
-  will-change:transform,opacity;
-}
-.star-twinkle{animation:star-drift linear infinite,star-twinkle ease-in-out infinite}
-@keyframes star-drift{
-  0%  {transform:translate(0,0)}
-  100%{transform:translate(var(--dx),var(--dy))}
-}
-@keyframes star-twinkle{
-  0%,100%{opacity:var(--op)}
-  50%    {opacity:var(--op-low)}
 }
 
 /* ── BREATHE FULL-SCREEN TAB ── */
@@ -344,11 +296,7 @@ html,body{height:100%;overflow:hidden;position:fixed;width:100%}
   top:222px;
   left:50%;transform:translateX(-50%);
   z-index:0;pointer-events:none;
-  animation:stone-glow 3.2s ease-in-out infinite;
-}
-@keyframes stone-glow{
-  0%,100%{filter:drop-shadow(0 8px 20px rgba(60,175,80,0.22))}
-  50%{filter:drop-shadow(0 8px 34px rgba(60,175,80,0.52))}
+  filter:drop-shadow(0 8px 20px rgba(60,175,80,0.22));
 }
 
 .plant-lbl{
@@ -416,7 +364,6 @@ html,body{height:100%;overflow:hidden;position:fixed;width:100%}
 .h-check.done{
   border-color:rgba(100,220,120,0.50);
   box-shadow:0 0 0 5px rgba(76,175,120,0.20),0 0 0 10px rgba(76,175,120,0.08),0 6px 24px rgba(76,175,120,0.40);
-  animation:check-ring 2.8s ease-in-out infinite;
 }
 .h-check svg{position:relative;z-index:1;filter:drop-shadow(0 1px 2px rgba(0,0,0,0.20))}
 .h-check path{stroke-dasharray:26;stroke-dashoffset:26;transition:stroke-dashoffset 0.42s ease 0.15s}
@@ -549,34 +496,11 @@ html,body{height:100%;overflow:hidden;position:fixed;width:100%}
 .toast.show{transform:translateX(-50%) translateY(0);opacity:1;pointer-events:auto}
 
 /* ── PLANT ANIMATIONS ── */
-@keyframes sway{0%,100%{transform:rotate(-2deg)}50%{transform:rotate(2deg)}}
-@keyframes sway-s{0%,100%{transform:rotate(-1deg)}50%{transform:rotate(1deg)}}
-@keyframes droop{0%,100%{transform:translateY(0)}50%{transform:translateY(5px)}}
-@keyframes glow{
-  0%,100%{filter:drop-shadow(0 6px 18px rgba(76,175,120,0.32))}
-  50%{filter:drop-shadow(0 6px 38px rgba(76,175,120,0.72)) drop-shadow(0 0 24px rgba(110,220,130,0.48))}
-}
-@keyframes spk{0%,100%{opacity:0;transform:scale(0.2) rotate(0deg)}50%{opacity:1;transform:scale(1) rotate(18deg)}}
 @keyframes tap-b{0%{transform:scale(1)}35%{transform:scale(0.87)}70%{transform:scale(1.07)}100%{transform:scale(1)}}
-@keyframes check-ring{
-  0%,100%{box-shadow:0 0 0 5px rgba(76,175,120,0.20),0 0 0 10px rgba(76,175,120,0.08),0 6px 24px rgba(76,175,120,0.40)}
-  50%{box-shadow:0 0 0 7px rgba(76,175,120,0.28),0 0 0 14px rgba(76,175,120,0.12),0 8px 32px rgba(76,175,120,0.55)}
-}
 @keyframes emoji-pop{
   0%{transform:scale(1)}30%{transform:scale(0.86)}60%{transform:scale(1.22)}80%{transform:scale(1.12)}100%{transform:scale(1.16)}
 }
 @keyframes save-pop{0%{transform:scale(1)}30%{transform:scale(0.96)}60%{transform:scale(1.03)}100%{transform:scale(1)}}
-
-.p-bloom{animation:glow 2.4s ease-in-out infinite}
-.p-bloom .pg{animation:sway 3.8s ease-in-out infinite;transform-origin:80px 190px}
-.p-sway  .pg{animation:sway 5.5s ease-in-out infinite;transform-origin:80px 190px}
-.p-idle  .pg{animation:sway-s 7s ease-in-out infinite;transform-origin:80px 190px}
-.p-droop .pg{animation:droop 2.8s ease-in-out infinite;transform-origin:80px 190px}
-
-.spk1{animation:spk 1.4s ease-in-out infinite 0s}
-.spk2{animation:spk 1.4s ease-in-out infinite 0.38s}
-.spk3{animation:spk 1.4s ease-in-out infinite 0.58s}
-.spk4{animation:spk 1.4s ease-in-out infinite 0.88s}
 
 .tap{animation:tap-b 0.38s var(--sp)}
 
@@ -646,11 +570,10 @@ html,body{height:100%;overflow:hidden;position:fixed;width:100%}
     0 30px 80px rgba(0,0,0,0.55);
   animation:ms-pop 0.48s var(--sp) both;
 }
-.milestone-emoji{font-size:70px;line-height:1;margin-bottom:14px;animation:ms-bob 1.1s ease-in-out infinite}
+.milestone-emoji{font-size:70px;line-height:1;margin-bottom:14px}
 .milestone-text{font-size:22px;font-weight:800;color:var(--g2);line-height:1.2;margin-bottom:6px}
 .milestone-sub{font-size:14px;color:var(--sub);font-weight:500}
 @keyframes ms-pop{from{transform:scale(0.55);opacity:0}to{transform:scale(1);opacity:1}}
-@keyframes ms-bob{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-9px) scale(1.04)}}
 
 /* ── DAILY SURPRISE ── */
 .surprise-container{position:absolute;bottom:60px;left:0;right:0;pointer-events:none;height:120px}
@@ -687,14 +610,8 @@ html,body{height:100%;overflow:hidden;position:fixed;width:100%}
 }
 .welcome-plant{
   margin-bottom:24px;
-  animation:welcome-sway 4s ease-in-out infinite;
-  transform-origin:center bottom;
   filter:drop-shadow(0 12px 40px rgba(76,175,120,0.45));
   position:relative;z-index:1;
-}
-@keyframes welcome-sway{
-  0%,100%{transform:rotate(-1.5deg) translateY(0)}
-  50%{transform:rotate(1.5deg) translateY(-6px)}
 }
 .welcome-title{
   font-size:clamp(26px,6vw,36px);font-weight:800;
@@ -742,7 +659,6 @@ html,body{height:100%;overflow:hidden;position:fixed;width:100%}
 .aurora-orb{
   position:absolute;border-radius:50%;
   filter:blur(70px);opacity:0.35;
-  animation:aurora-drift ease-in-out infinite alternate;
 }
 .aurora-orb-1{
   width:70vw;height:70vw;max-width:500px;max-height:500px;
@@ -769,19 +685,9 @@ html,body{height:100%;overflow:hidden;position:fixed;width:100%}
   background:radial-gradient(circle,rgba(80,60,140,0.3) 0%,rgba(30,15,70,0.2) 42%,transparent 68%);
   top:5%;right:10%;animation-duration:16s;animation-delay:-11s;opacity:0.22;
 }
-@keyframes aurora-drift{
-  0%  {transform:translate(0,0) scale(1)}
-  33% {transform:translate(4%,7%) scale(1.07)}
-  66% {transform:translate(-3%,12%) scale(0.94)}
-  100%{transform:translate(6%,4%) scale(1.04)}
-}
 
 /* ── PLANT BREATHING ── */
-@keyframes breathe-glow-plant{
-  0%,100%{filter:drop-shadow(0 6px 14px rgba(76,175,120,0.38))}
-  50%{filter:drop-shadow(0 6px 44px rgba(76,175,120,0.85)) drop-shadow(0 0 22px rgba(110,230,140,0.55))}
-}
-.plant-breathing{animation:breathe-glow-plant 8s ease-in-out infinite}
+.plant-breathing{}
 
 /* ── HABIT CARD (multi-habit) ── */
 .habit-card-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
@@ -1087,11 +993,7 @@ html,body{height:100%;overflow:hidden;position:fixed;width:100%}
 .bc-sub{font-size:15px;color:rgba(180,235,200,0.80);font-weight:500;margin-top:8px}
 
 /* ── PLANT GOLD GLOW ── */
-@keyframes gold-pulse{
-  0%,100%{filter:drop-shadow(0 6px 22px rgba(255,200,60,0.70)) drop-shadow(0 0 16px rgba(255,210,80,0.45))}
-  50%{filter:drop-shadow(0 6px 40px rgba(255,210,60,0.95)) drop-shadow(0 0 30px rgba(255,220,100,0.70))}
-}
-.plant-gold-glow{animation:gold-pulse 1.2s ease-in-out infinite}
+.plant-gold-glow{}
 
 /* ── PLANT TAP PARTICLES ── */
 @keyframes plant-burst{
@@ -1114,27 +1016,6 @@ html,body{height:100%;overflow:hidden;position:fixed;width:100%}
   overflow:hidden;
   display:inline-block;
   border-radius:2px;
-}
-.save-btn:not(.ok) .save-txt::after{
-  content:'';
-  position:absolute;
-  top:-20%;left:-90%;
-  width:60%;height:140%;
-  background:linear-gradient(
-    110deg,
-    transparent 15%,
-    rgba(255,255,255,0.14) 32%,
-    rgba(255,255,255,0.70) 50%,
-    rgba(255,255,255,0.14) 68%,
-    transparent 85%
-  );
-  transform:skewX(-16deg);
-  animation:shimmer-sweep 3s ease-in-out infinite;
-  pointer-events:none;
-}
-@keyframes shimmer-sweep{
-  0%       {left:-90%}
-  28%,100% {left:120%}
 }
 
 /* ── ONBOARDING ── */
@@ -1162,16 +1043,12 @@ html,body{height:100%;overflow:hidden;position:fixed;width:100%}
 }
 .ob-plant{
   margin-bottom:20px;
-  animation:welcome-sway 4s ease-in-out infinite;
-  transform-origin:center bottom;
   filter:drop-shadow(0 12px 40px rgba(76,175,120,0.45));
 }
 .ob-icon-wrap{margin-bottom:20px}
 .ob-big-icon{
   font-size:72px;display:block;line-height:1;
   filter:drop-shadow(0 8px 24px rgba(76,175,120,0.30));
-  animation:welcome-sway 4s ease-in-out infinite;
-  transform-origin:center bottom;
 }
 .ob-title{
   font-size:clamp(26px,6vw,34px);font-weight:800;

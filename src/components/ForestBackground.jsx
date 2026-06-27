@@ -1,5 +1,3 @@
-import { useMemo } from 'react'
-
 function treeD(cx, baseY, w, h) {
   const t = Math.max(4, w * 0.09)
   return [
@@ -64,17 +62,6 @@ function rayPath(topW, botW, len = 1100) {
 }
 
 export default function ForestBackground() {
-  const particles = useMemo(() => Array.from({ length: 24 }, (_, i) => ({
-    id: i,
-    x: 1 + Math.random() * 98,
-    y: 2 + Math.random() * 95,
-    size: 1.5 + Math.random() * 1.5,
-    dur: 7 + Math.random() * 16,
-    delay: -(Math.random() * 24),
-    drift: Math.round(-30 + Math.random() * 60),
-    opacity: 0.55 + Math.random() * 0.45,
-  })), [])
-
   return (
     <div className="forest-bg" aria-hidden="true">
       <div className="forest-layer-back">
@@ -156,25 +143,6 @@ export default function ForestBackground() {
             fill="#030a04"
           />
         </svg>
-      </div>
-
-      <div className="forest-particles">
-        {particles.map(p => (
-          <div
-            key={p.id}
-            className="forest-particle"
-            style={{
-              left: `${p.x}%`,
-              top: `${p.y}%`,
-              width: `${p.size}px`,
-              height: `${p.size}px`,
-              opacity: p.opacity,
-              animationDuration: `${p.dur}s`,
-              animationDelay: `${p.delay}s`,
-              '--pdrift': `${p.drift}px`,
-            }}
-          />
-        ))}
       </div>
 
       <div className="forest-mist">
