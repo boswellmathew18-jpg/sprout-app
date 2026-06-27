@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import ForestBackground from './ForestBackground'
 import PlantSvg from './PlantSvg'
+import { playClick, playType } from '../utils/sounds'
 
 export default function Onboarding({ onComplete }) {
   const [step, setStep] = useState(0)
@@ -74,7 +75,7 @@ export default function Onboarding({ onComplete }) {
             </div>
             <h1 className="ob-title">Welcome to Grove</h1>
             <p className="ob-sub">Your daily wellness companion</p>
-            <button className="ob-btn" onClick={() => goTo(1)}>Get Started →</button>
+            <button className="ob-btn" onClick={() => { playClick(); goTo(1) }}>Get Started →</button>
           </div>
 
           {/* Step 2 — Features */}
@@ -84,7 +85,7 @@ export default function Onboarding({ onComplete }) {
             </div>
             <h2 className="ob-title">Track your habits</h2>
             <p className="ob-sub">Build streaks, log sleep and water,<br />and journal your mood — one day at a time.</p>
-            <button className="ob-btn" onClick={() => goTo(2)}>Next →</button>
+            <button className="ob-btn" onClick={() => { playClick(); goTo(2) }}>Next →</button>
           </div>
 
           {/* Step 3 — Name */}
@@ -100,11 +101,11 @@ export default function Onboarding({ onComplete }) {
                 type="text"
                 placeholder="Your name..."
                 value={name}
-                onChange={e => setName(e.target.value)}
+                onChange={e => { playType(); setName(e.target.value) }}
                 maxLength={30}
                 autoComplete="given-name"
               />
-              <button type="submit" className="ob-btn" disabled={!name.trim()}>
+              <button type="submit" className="ob-btn" disabled={!name.trim()} onClick={playClick}>
                 Start Growing 🌱
               </button>
             </form>
@@ -130,8 +131,8 @@ export default function Onboarding({ onComplete }) {
             <div className="notif-icon">🔔</div>
             <h3 className="notif-title">Daily reminders?</h3>
             <p className="notif-sub">Let Grove nudge you each day to check in and keep your streak alive.</p>
-            <button className="notif-btn-yes" onClick={handleNotifYes}>Yes, remind me</button>
-            <button className="notif-btn-skip" onClick={handleNotifSkip}>Maybe later</button>
+            <button className="notif-btn-yes" onClick={() => { playClick(); handleNotifYes() }}>Yes, remind me</button>
+            <button className="notif-btn-skip" onClick={() => { playClick(); handleNotifSkip() }}>Maybe later</button>
           </div>
         </div>
       )}

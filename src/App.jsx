@@ -15,6 +15,7 @@ import StreakCalendar from './components/StreakCalendar'
 import WeeklyStats from './components/WeeklyStats'
 import { TR, FLAGS, CODES, LANGS } from './translations'
 import { sndHabit, sndWater, sndWaterTap, sndSleep, sndEmoji, sndSave, sndPlant, sndMilestone, sndStreakSave, sndBreathingComplete } from './audio'
+import { playClick, playOpen, setMuted } from './utils/sounds'
 
 const LANG_NAMES = { en: 'English', es: 'Español', de: 'Deutsch', fr: 'Français' }
 const SURPRISE_TYPES = ['ladybug', 'rainbow', 'sun']
@@ -270,6 +271,27 @@ export default function App() {
     }
     document.addEventListener('click', handler)
     return () => document.removeEventListener('click', handler)
+  }, [])
+
+  // Keep sounds.js muted flag in sync with app state
+  useEffect(() => { setMuted(muted) }, [muted])
+
+  // Play open chime on first user interaction (browsers block AudioContext before gesture)
+  useEffect(() => {
+    let played = false
+    const play = () => {
+      if (played) return
+      played = true
+      playOpen()
+      document.removeEventListener('touchstart', play)
+      document.removeEventListener('click', play)
+    }
+    document.addEventListener('touchstart', play, { passive: true })
+    document.addEventListener('click', play)
+    return () => {
+      document.removeEventListener('touchstart', play)
+      document.removeEventListener('click', play)
+    }
   }, [])
 
   // iOS scroll freeze fix: nudge scrollTop away from boundaries on touchstart so
@@ -621,14 +643,14 @@ export default function App() {
               <div className="hdr-date">{dateStr}</div>
             </div>
             <div className="lang-wrap" ref={langWrapRef}>
-              <button className="lang-btn" onClick={() => setLangDropOpen(o => !o)}>
+              <button className="lang-btn" onClick={() => { playClick(); setLangDropOpen(o => !o) }}>
                 <span>{FLAGS[lang]}</span>
                 <span>{CODES[lang]}</span>
                 <span style={{ fontSize: 9, opacity: 0.5, marginLeft: 1 }}>▾</span>
               </button>
               <div className={`lang-drop ${langDropOpen ? 'open' : ''}`}>
                 {LANGS.map(l => (
-                  <button key={l} className={`lang-opt ${l === lang ? 'cur' : ''}`} onClick={() => handleSetLang(l)}>
+                  <button key={l} className={`lang-opt ${l === lang ? 'cur' : ''}`} onClick={() => { playClick(); handleSetLang(l) }}>
                     {FLAGS[l]}&nbsp;&nbsp;{LANG_NAMES[l]}
                   </button>
                 ))}
@@ -723,21 +745,21 @@ export default function App() {
       <nav className="tab-bar">
         <button
           className={`tab-btn${activeTab === 'home' ? ' active' : ''}`}
-          onClick={() => setActiveTab('home')}
+          onClick={() => { playClick(); setActiveTab('home') }}
           aria-label="Home"
         >
           <span className="tab-lbl">{t.tabHome}</span>
         </button>
         <button
           className={`tab-btn${activeTab === 'breathe' ? ' active' : ''}`}
-          onClick={() => setActiveTab('breathe')}
+          onClick={() => { playClick(); setActiveTab('breathe') }}
           aria-label="Breathe"
         >
           <span className="tab-lbl">{t.tabBreathe}</span>
         </button>
         <button
           className={`tab-btn${activeTab === 'growth' ? ' active' : ''}`}
-          onClick={() => setActiveTab('growth')}
+          onClick={() => { playClick(); setActiveTab('growth') }}
           aria-label="Growth"
         >
           <span className="tab-lbl">{t.tabGrowth}</span>

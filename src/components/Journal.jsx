@@ -1,4 +1,5 @@
 import { TR } from '../translations'
+import { playType } from '../utils/sounds'
 
 const MOODS = [
   { val: 1, emoji: '😞' },
@@ -31,7 +32,7 @@ export default function Journal({ mood, note, lang, onMoodChange, onNoteChange }
         maxLength={120}
         placeholder={t.jPh}
         value={note || ''}
-        onChange={e => onNoteChange(e.target.value)}
+        onChange={e => { playType(); onNoteChange(e.target.value) }}
       />
     </div>
   )

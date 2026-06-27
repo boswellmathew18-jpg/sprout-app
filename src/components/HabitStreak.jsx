@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react'
 import { TR } from '../translations'
+import { playClick, playType } from '../utils/sounds'
 
 const HABIT_EMOJIS = ['🏃','💪','📚','🧘','💧','🌿','✍️','🎯','🍎','😴','🎨','🎵','✝️','📖']
 
@@ -49,7 +50,7 @@ function HabitRow({ habit, done, streak, onToggle, onRename, onDelete, lang }) {
               maxLength={40}
               value={inputVal}
               placeholder={t.ph}
-              onChange={e => setInputVal(e.target.value)}
+              onChange={e => { playType(); setInputVal(e.target.value) }}
               onBlur={saveEdit}
               onKeyDown={e => e.key === 'Enter' && saveEdit()}
               autoFocus
@@ -66,7 +67,7 @@ function HabitRow({ habit, done, streak, onToggle, onRename, onDelete, lang }) {
           </div>
           <div className="s-motiv">{motivText}</div>
         </div>
-        <button className="habit-del" onClick={() => onDelete(habit.id)} aria-label="Remove habit">✕</button>
+        <button className="habit-del" onClick={() => { playClick(); onDelete(habit.id) }} aria-label="Remove habit">✕</button>
       </div>
     </div>
   )
@@ -89,7 +90,7 @@ export default function HabitStreak({ habits, streaks, doneMap, lang, onToggle, 
             <div className="ep-title">Pick an icon</div>
             <div className="ep-grid">
               {HABIT_EMOJIS.map(em => (
-                <button key={em} className="ep-opt" onClick={() => handlePickEmoji(em)}>{em}</button>
+                <button key={em} className="ep-opt" onClick={() => { playClick(); handlePickEmoji(em) }}>{em}</button>
               ))}
             </div>
           </div>
@@ -100,7 +101,7 @@ export default function HabitStreak({ habits, streaks, doneMap, lang, onToggle, 
         <div className="habit-card-hdr">
           <div className="card-ttl" style={{ marginBottom: 0 }}>{t.habitTtl}</div>
           {habits.length < 3 && (
-            <button className="habit-add" onClick={() => setPickingEmoji(true)} aria-label="Add habit">+</button>
+            <button className="habit-add" onClick={() => { playClick(); setPickingEmoji(true) }} aria-label="Add habit">+</button>
           )}
         </div>
 

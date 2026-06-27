@@ -2,6 +2,7 @@ import { useState } from 'react'
 import ForestBackground from './ForestBackground'
 import PlantSvg from './PlantSvg'
 import { TR } from '../translations'
+import { playClick, playType } from '../utils/sounds'
 
 export default function WelcomeScreen({ onComplete, lang = 'en' }) {
   const [name, setName] = useState('')
@@ -10,7 +11,7 @@ export default function WelcomeScreen({ onComplete, lang = 'en' }) {
   const handleSubmit = e => {
     e.preventDefault()
     const trimmed = name.trim()
-    if (trimmed) onComplete(trimmed.charAt(0).toUpperCase() + trimmed.slice(1))
+    if (trimmed) { playClick(); onComplete(trimmed.charAt(0).toUpperCase() + trimmed.slice(1)) }
   }
 
   return (
@@ -27,7 +28,7 @@ export default function WelcomeScreen({ onComplete, lang = 'en' }) {
             type="text"
             placeholder={t.welcomePh}
             value={name}
-            onChange={e => setName(e.target.value)}
+            onChange={e => { playType(); setName(e.target.value) }}
             maxLength={40}
             autoFocus
             autoComplete="given-name"
